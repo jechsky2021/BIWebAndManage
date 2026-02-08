@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Common/Common.csproj" />
+  <Project Path="DataAccess/DataAccess.csproj" Id="80e9f32f-56fe-42e0-af72-38be7154be39" />
+  <Project Path="DTO/DTO.csproj" />
+  <Project Path="ProfessionalLogic/ProfessionalLogic.csproj" />
+  <Project Path="WebApiBI/WebApiBI.csproj" />
+</Solution>
