@@ -2,6 +2,6 @@
 **/dist
 **/bin
 **/obj
-**/Log
+**/Logs
 **/.vs
 .log
