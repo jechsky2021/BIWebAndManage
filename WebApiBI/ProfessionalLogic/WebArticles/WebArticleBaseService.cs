@@ -1,6 +1,7 @@
 ﻿using DataAccess;
 using DTO;
 using DTO.Article;
+using DTO.WebArticle;
 using Microsoft.Extensions.Logging;
 using System.Data;
 
@@ -12,9 +13,9 @@ namespace ProfessionalLogic.WebArticles
         {
         }
 
-        public DataResult getWebArticleByPage(DTO_Article model)
+        public DataResult getWebArticleByPage(DTO_WebArticle model)
         {
-            DataSet result = DataHandler.QueryDataSet<DTO_Article>(model, ProcName.proc_selectArticleByPage, OpBase.beautyindustry);
+            DataSet result = DataHandler.QueryDataSet<DTO_WebArticle>(model, ProcName.proc_selectWebArticleByPage, OpBase.beautyindustry);
             return SelectByPage<DTO_Article>(result);
         }
 

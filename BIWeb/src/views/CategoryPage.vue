@@ -37,11 +37,10 @@
             </div>
             <div class="content-info">
               <h3 class="content-title">{{ article.title }}</h3>
-              <p class="content-summary">{{ article.summary }}</p>
+              <p class="content-summary">{{ article.introduce }}</p>
               <div class="content-meta">
-                <span class="publish-date">{{ article.publishDate }}</span>
+                <span class="publish-date">{{ dayjs(article.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
                 <span class="read-count">阅读 {{ article.readCount }}</span>
-                <span class="like-count">点赞 {{ article.likeCount }}</span>
               </div>
             </div>
           </div>
@@ -72,28 +71,15 @@
       </div>
     </main>
 
-    
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
-interface CategoryInfo {
-  name: string;
-  description: string;
-}
-
-interface Article {
-  id: number;
-  title: string;
-  summary: string;
-  publishDate: string;
-  readCount: number;
-  likeCount: number;
-  color: string;
-}
+import { getArticlesByPage } from '../api/articles';
+import dayjs from 'dayjs';
+ 
 
 const route = useRoute();
 const router = useRouter();
@@ -102,43 +88,45 @@ const categoryName = ref('美业资讯分类');
 const categoryDescription = ref('这里是关于美业的最新资讯和产品信息');
 const currentPage = ref(1);
 const totalPages = ref(5);
-const articles = ref<Article[]>([]);
+const articles = ref<any[]>([]);
 const popularTags = ref<string[]>(['染发技巧', '护发知识', '产品测评', '行业动态', '潮流趋势', '专业工具', '护理方法', '色彩搭配']);
 const activeFilter = ref('latest');
 const activeViewMode = ref('list');
 
-const loadCategoryData = () => {
-  // 根据分类ID加载不同的分类信息
-  const categoryMap: Record<string, CategoryInfo> = {
-    '1': { name: '单支染膏', description: '了解各种单支染膏产品的特点和使用方法' },
-    '2': { name: '双支染膏', description: '双支染膏的专业调配和效果展示' },
-    '3': { name: '黑油精油', description: '黑油精油产品介绍和使用技巧' },
-    '4': { name: '冷烫热汤', description: '烫发技术和产品的详细解析' },
-    '5': { name: '洗护产品', description: '各类洗护产品的选择和使用建议' },
-    '6': { name: '发膜系列', description: '发膜产品的功效和正确使用方法' },
-    '7': { name: '彩妆工具', description: '专业彩妆工具的使用技巧和推荐' },
-    '8': { name: '美发工具', description: '美发专业工具的选择和使用指南' }
-  };
-  
-  if (categoryMap[categoryId.value as string]) {
-    categoryName.value = categoryMap[categoryId.value as string].name;
-    categoryDescription.value = categoryMap[categoryId.value as string].description;
-  }
-};
 
-const generateMockArticles = () => {
-  // 生成模拟文章数据
-  const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7DC6F', '#BB8FCE', '#52BE80', '#F8C471', '#85C1E9'];
-  
-  articles.value = Array.from({ length: 10 }, (_, index) => ({
-    id: (currentPage.value - 1) * 10 + index + 1,
-    title: `${categoryName.value}专业知识分享${index + 1}：如何选择适合的产品`,
-    summary: `这是一篇关于${categoryName.value}的专业文章，详细介绍了产品的选择方法、使用技巧以及注意事项，帮助您更好地了解和使用相关产品。`,
-    publishDate: new Date(Date.now() - index * 86400000).toLocaleDateString(),
-    readCount: Math.floor(Math.random() * 10000) + 1000,
-    likeCount: Math.floor(Math.random() * 500) + 50,
-    color: colors[index % colors.length]
-  }));
+const loadArticles = async () => {
+  try {
+
+    const params ={
+      articleType: Number(categoryId.value) ,
+      statuss: 1,
+      isRecommend: 1,
+      pageNumber: currentPage.value,
+      pageSize: 10
+    };
+
+    //console.log("params:",params);
+    const response = await getArticlesByPage(params);
+    //console.log("response:",response);
+    
+    if (response.sign === "1" && response.data ) {
+      articles.value = response.data.lists.map((article: any, index: number) => ({
+        id: article.id,
+        title: article.title || '暂无标题',
+        introduce: article.introduce || article.content?.substring(0, 100) || '暂无简介',
+        createTime: article.createTime || new Date().toLocaleDateString(),
+        readCount: article.pageViews || 0,
+        color: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7DC6F', '#BB8FCE', '#52BE80', '#F8C471', '#85C1E9'][index % 8]
+      }));
+      console.log("articles:",articles.value);
+      
+      if (response.data.total) {
+        totalPages.value = Math.ceil(response.data.total / 10);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load articles:', error);
+  }
 };
 
 const goToDetail = (id: number) => {
@@ -164,12 +152,11 @@ const filteredArticles = computed(() => {
 });
 
 onMounted(() => {
-  loadCategoryData();
-  generateMockArticles();
+  loadArticles();
 });
 
 watch(currentPage, () => {
-  generateMockArticles();
+  loadArticles();
 });
 </script>
 
@@ -365,7 +352,6 @@ watch(currentPage, () => {
         line-height: 1.6;
         margin-bottom: 12px;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -401,7 +387,6 @@ watch(currentPage, () => {
       }
       
       .content-summary {
-        -webkit-line-clamp: 3;
         margin-bottom: 10px;
       }
       
@@ -536,10 +521,7 @@ watch(currentPage, () => {
         .content-title {
           font-size: 16px;
         }
-        
-        .content-summary {
-          -webkit-line-clamp: 2;
-        }
+         
       }
     }
 

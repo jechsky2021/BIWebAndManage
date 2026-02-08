@@ -51,14 +51,13 @@
     <div v-if="currentRoute === '/'" class="categories-bar">
       <div class="container">
         <div class="category-items">
-          <router-link to="/category/1" class="category-item" :class="{ active: currentRoute.includes('/category/1') }" >单支染膏</router-link>
-          <router-link to="/category/2" class="category-item" :class="{ active: currentRoute.includes('/category/2') }" >双支染膏</router-link>
-          <router-link to="/category/3" class="category-item" :class="{ active: currentRoute.includes('/category/3') }" >黑油精油</router-link>
-          <router-link to="/category/4" class="category-item" :class="{ active: currentRoute.includes('/category/4') }" >冷烫热汤</router-link>
-          <router-link to="/category/5" class="category-item" :class="{ active: currentRoute.includes('/category/5') }" >洗护产品</router-link>
-          <router-link to="/category/6" class="category-item" :class="{ active: currentRoute.includes('/category/6') }" >发膜系列</router-link>
-          <router-link to="/category/7" class="category-item" :class="{ active: currentRoute.includes('/category/7') }" >彩妆工具</router-link>
-          <router-link to="/category/8" class="category-item" :class="{ active: currentRoute.includes('/category/8') }" >美发工具</router-link>
+          <router-link 
+            v-for="category in categories" 
+            :key="category.id" 
+            :to="`/category/${category.id}`" 
+            class="category-item" 
+            :class="{ active: currentRoute.includes(`/category/${category.id}`) }" 
+          >{{ category.atName }}</router-link>
         </div>
       </div>
     </div>
@@ -66,6 +65,8 @@
 </template>
 
 <script>
+import { getArticleTypeByPage } from '../api/articleTypes';
+
 export default {
   name: 'NavBar',
   data() {
@@ -73,6 +74,8 @@ export default {
       activeDropdown: null,
       searchQuery: '',
       isSearchFocused: false,
+      // 分类数据
+      categories: [],
       // 模拟搜索建议数据
       searchSuggestions: [
         { id: 1, title: '染发技巧大全', category: '染发' },
@@ -85,6 +88,10 @@ export default {
         { id: 8, title: '产品成分分析', category: '产品' }
       ]
     }
+  },
+  created() {
+    // 加载分类数据
+    this.loadCategories();
   },
   computed: {
     currentRoute() {
@@ -103,6 +110,18 @@ export default {
     }
   },
   methods: {
+    // 加载分类数据
+    async loadCategories() {
+      try {
+        const response = await getArticleTypeByPage({ pageNumber: 1, pageSize: 10 });
+        // console.log("response:",response)
+        if (response.data && response.data.lists) {
+          this.categories = response.data.lists;
+        }
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    },
     navigateTo(path) {
       // 确保导航正确执行
       this.$router.push(path);

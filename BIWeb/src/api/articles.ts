@@ -36,3 +36,6 @@ export async function getArticlesByPage(params: ArticleParams): Promise<ArticleL
 export async function getArticlesById(params: ArticleParams): Promise<ArticleDetailResponse> {
   return axios.post('/WebArticle/GetDetailById', params);
 }
+
+
+

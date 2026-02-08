@@ -7,6 +7,7 @@ using ProfessionalLogic.menus;
 using ProfessionalLogic.roles;
 using ProfessionalLogic.users;
 using ProfessionalLogic.WebArticles;
+using ProfessionalLogic.webArticleTypes;
 using Serilog;
 using System.Text;
 
@@ -36,6 +37,7 @@ builder.Services.AddScoped<IRoleBaseService, RoleBaseService>();
 builder.Services.AddScoped<IArticleBaseService, ArticleBaseService>();
 builder.Services.AddScoped<IArticleTypeBaseService, ArticleTypeBaseService>();
 builder.Services.AddScoped<IWebArticleBaseService, WebArticleBaseService>();
+builder.Services.AddScoped<IWebArticleTypeBaseService, WebArticleTypeBaseService>();
 
 
 // 配置CORS

@@ -34,7 +34,7 @@ namespace DataAccess
         public static readonly string proc_insertRole = "proc_insertRole";
         public static readonly string proc_updateRole = "proc_updateRole";
         public static readonly string proc_deleteRoleById = "proc_deleteRoleById";
-        public static readonly string proc_selectMenuByRoleId = "porc_selectMenuByRoleId";
+        public static readonly string proc_selectMenuByRoleId = "proc_selectMenuByRoleId";
         public static readonly string proc_deleteRoleMenu = "proc_deleteRoleMenu";
 
         #endregion
@@ -64,6 +64,10 @@ namespace DataAccess
         public static readonly string proc_updateStatussById = "proc_updateStatussById";
         public static readonly string proc_selectPublishArticleById = "proc_selectPublishArticleById";
 
+        public static readonly string proc_updatePageViews = "proc_updatePageViews";
+
+        public static readonly string proc_selectWebArticleByPage = "proc_selectWebArticleByPage";
+
         #endregion
 
         #region articleType
@@ -73,6 +77,8 @@ namespace DataAccess
         public static readonly string proc_insertArticleType = "proc_insertArticleType";
         public static readonly string proc_updateArticleType = "proc_updateArticleType";
         public static readonly string proc_deleteArticleTypeById = "proc_deleteArticleTypeById";
+
+        public static readonly string proc_selectWebARTByPage = "proc_selectWebArticleTypeByPage";
 
         #endregion
 

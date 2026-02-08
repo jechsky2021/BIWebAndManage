@@ -59,7 +59,7 @@
                 </div>
                 <div class="card-content">
                   <h3 class="card-title">{{ article.title }}</h3>
-                  <p class="card-summary">{{ article.summary }}</p>
+                  <p class="card-summary">{{ article.introduce }}</p>
                 </div>
               </router-link>
             </div>
@@ -74,7 +74,7 @@
                 </div>
                 <div class="card-content">
                   <h3 class="card-title">{{ article.title }}</h3>
-                  <p class="card-summary">{{ article.summary }}</p>
+                  <p class="card-summary">{{ article.introduce }}</p>
                 </div>
               </router-link>
             </div>
@@ -89,31 +89,14 @@
 import { ref, onMounted, nextTick } from 'vue';
 import LatestArticles from '../components/LatestArticles.vue';
 import { getArticlesByPage } from '../api/articles';
+import dayjs from 'dayjs';
 
-interface Tab {
-  key: string;
-  name: string;
-}
-
-interface Article {
-  id: number;
-  title: string;
-  summary: string;
-  time: string;
-  source: string;
-  views: string;
-}
-
-interface CategoryArticle {
-  id: number;
-  title: string;
-  summary: string;
-}
+ 
 
 const loading = ref(false);
 const activeTab = ref('latest');
 
-const tabs: Tab[] = [
+const tabs: any[] = [
   { key: 'latest', name: '最新' },
   { key: 'daily', name: '日榜' },
   { key: 'weekly', name: '周榜' },
@@ -122,46 +105,39 @@ const tabs: Tab[] = [
 
 const colors = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#1a535c', '#f7b801', '#7209b7', '#4cc9f0', '#f72585'];
 
-const dailyArticles: Article[] = [
-  { id: 1, title: '2025夏季流行发色趋势预测', summary: '2025年夏季是发色趋势的重要时间节点，预测显示，许多客户选择使用不同的发色...', time: '2025-08-01', source: '美业观察', views: '23.5万' },
-  { id: 2, title: '专业染发师必备的10个技巧', summary: '专业染发师需要掌握的10个技巧，包括选择合适的染膏、正确的染法、及时的维护等...', time: '2025-08-02', source: '染发大师', views: '18.2万' },
-  { id: 3, title: '如何解决染发后褪色问题', summary: '染发后褪色是一个常见问题，许多客户都遇到过。本文将介绍一些解决方法，帮助您保持发型的持久和自然...', time: '2025-08-03', source: '护发专家', views: '15.6万' },
-  { id: 4, title: '天然植物染发的优缺点分析', summary: '天然植物染发是一种不使用染膏的染法，它的优点包括染后自然、染后持久等...', time: '2025-08-04', source: '绿色美业', views: '12.3万' },
-  { id: 5, title: '消费者最喜爱的5款染发产品', summary: '根据消费者调查，以下5款染发产品被广泛认可为最受欢迎的产品...', time: '2025-08-05', source: '美业测评', views: '10.8万' },
-  { id: 6, title: '消费者最喜爱的5款染发产品', summary: '根据消费者调查，以下5款染发产品被广泛认可为最受欢迎的产品...', time: '2025-08-05', source: '美业测评', views: '10.8万' },
-  { id: 7, title: '消费者最喜爱的5款染发产品', summary: '根据消费者调查，以下5款染发产品被广泛认可为最受欢迎的产品...', time: '2025-08-05', source: '美业测评', views: '10.8万' },
-  { id: 8, title: '消费者最喜爱的5款染发产品', summary: '根据消费者调查，以下5款染发产品被广泛认可为最受欢迎的产品...', time: '2025-08-05', source: '美业测评', views: '10.8万' },
-  { id: 9, title: '消费者最喜爱的5款染发产品', summary: '根据消费者调查，以下5款染发产品被广泛认可为最受欢迎的产品...', time: '2025-08-05', source: '美业测评', views: '10.8万' },
-  { id: 10, title: '消费者最喜爱的5款染发产品', summary: '根据消费者调查，以下5款染发产品被广泛认可为最受欢迎的产品...', time: '2025-08-05', source: '美业测评', views: '10.8万' }
-];
+const dailyArticles = ref<any[]>([]);
+const weeklyArticles = ref<any[]>([]);
+const monthlyArticles = ref<any[]>([]);
 
-const weeklyArticles: Article[] = [
-  { id: 6, title: '理发店如何提高染发服务的满意度', summary: '根据客户反馈，以下是一些提高理发师满意度的有效方法...', time: '2025-08-05', source: '美业经营', views: '45.2万' },
-  { id: 7, title: '2025年美业市场分析报告', summary: '根据2025年美业市场分析报告，以下是一些重要发现...', time: '2025-08-05', source: '行业研究', views: '38.7万' },
-  { id: 8, title: '染发技术进阶培训课程推荐', summary: '本课程将介绍专业染发师必备的10个技巧，帮助您提升染发效果和客户满意度...', time: '2025-08-05', source: '技能提升', views: '32.1万' },
-  { id: 9, title: '染发产品成分解析：如何选择安全产品', summary: '根据HairCare.com的研究，以下是一些常用染发产品的成分解析，帮助您选择安全的产品...', time: '2025-08-05', source: '成分科普', views: '29.5万' },
-  { id: 10, title: '美业店铺装修设计趋势', summary: '根据最新的店铺装修设计趋势，以下是一些值得关注的方面...', time: '2025-08-05', source: '店铺设计', views: '26.3万' },
-  { id: 11, title: '理发店如何提高染发服务的满意度', summary: '根据客户反馈，以下是一些提高理发师满意度的有效方法...', time: '2025-08-05', source: '美业经营', views: '45.2万' },
-  { id: 12, title: '2025年美业市场分析报告', summary: '根据2025年美业市场分析报告，以下是一些重要发现...', time: '2025-08-05', source: '行业研究', views: '38.7万' },
-  { id: 13, title: '染发技术进阶培训课程推荐', summary: '本课程将介绍专业染发师必备的10个技巧，帮助您提升染发效果和客户满意度...', time: '2025-08-05', source: '技能提升', views: '32.1万' },
-  { id: 14, title: '染发产品成分解析：如何选择安全产品', summary: '根据HairCare.com的研究，以下是一些常用染发产品的成分解析，帮助您选择安全的产品...', time: '2025-08-05', source: '成分科普', views: '29.5万' },
-  { id: 15, title: '染发产品成分解析：如何选择安全产品', summary: '根据HairCare.com的研究，以下是一些常用染发产品的成分解析，帮助您选择安全的产品...', time: '2025-08-05', source: '成分科普', views: '29.5万' }
-];
+// 计算时间范围的函数
+const getTimeRange = (type: 'daily' | 'weekly' | 'monthly') => {
+  const now = new Date();
+  const endTime = new Date(now);
+  endTime.setHours(23, 59, 59, 999);
+  
+  const startTime = new Date(now);
+  
+  if (type === 'daily') {
+    // 当天开始
+    startTime.setHours(0, 0, 0, 0);
+  } else if (type === 'weekly') {
+    // 本周一开始
+    const dayOfWeek = now.getDay() || 7; // 将周日从0改为7
+    startTime.setDate(now.getDate() - dayOfWeek + 1);
+    startTime.setHours(0, 0, 0, 0);
+  } else if (type === 'monthly') {
+    // 本月1号开始
+    startTime.setDate(1);
+    startTime.setHours(0, 0, 0, 0);
+  }
+  
+  return {
+    startTime: dayjs(startTime).format('YYYY-MM-DD HH:mm:ss') ,
+    endTime: dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')
+  };
+};
 
-const monthlyArticles: Article[] = [
-  { id: 11, title: '2025年美业十大发展趋势', summary: '根据2025年美业市场分析报告，以下是一些重要发现...', time: '2025-08-05', source: '行业前瞻', views: '120.5万' },
-  { id: 12, title: '成功美业创业者的经验分享', summary: '根据成功美业创业者的经验分享，以下是一些重要发现...', time: '2025-08-05', source: '创业故事', views: '98.3万' },
-  { id: 13, title: '染发技术的历史演变与未来发展', summary: '根据HairCare.com的研究，以下是一些常用染发产品的成分解析，帮助您选择安全的产品...', time: '2025-08-05', source: '技术演变', views: '87.6万' },
-  { id: 14, title: '如何打造高客单价的染发服务', summary: '根据成功美业创业者的经验分享，以下是一些重要发现...', time: '2025-08-05', source: '经营策略', views: '76.2万' },
-  { id: 15, title: '美业行业数字化转型指南', summary: '根据2025年美业市场分析报告，以下是一些重要发现...', time: '2025-08-05', source: '数字化', views: '68.9万' },
-  { id: 16, title: '如何打造高客单价的染发服务', summary: '根据成功美业创业者的经验分享，以下是一些重要发现...', time: '2025-08-05', source: '经营策略', views: '76.2万' },
-  { id: 17, title: '美业行业数字化转型指南', summary: '根据2025年美业市场分析报告，以下是一些重要发现...', time: '2025-08-05', source: '数字化', views: '68.9万' },
-  { id: 18, title: '美业行业数字化转型指南', summary: '根据2025年美业市场分析报告，以下是一些重要发现...', time: '2025-08-05', source: '数字化', views: '68.9万' },
-  { id: 19, title: '如何打造高客单价的染发服务', summary: '根据成功美业创业者的经验分享，以下是一些重要发现...', time: '2025-08-05', source: '经营策略', views: '76.2万' },
-  { id: 20, title: '美业行业数字化转型指南', summary: '根据2025年美业市场分析报告，以下是一些重要发现...', time: '2025-08-05', source: '数字化', views: '68.9万' }
-];
-
-const latestArticles = ref<Article[]>([
+const latestArticles = ref<any[]>([
   { 
     id: 16, 
     title: '新品发布：革命性染发技术问世', 
@@ -244,27 +220,65 @@ const latestArticles = ref<Article[]>([
   }
 ]);
 
-const hairColorArticles: CategoryArticle[] = [
-  { id: 21, title: '单支染膏的正确使用方法', summary: '详细介绍单支染膏的操作步骤和注意事项...' },
-  { id: 22, title: '如何选择适合客户的染膏颜色', summary: '根据肤色、发质和需求选择最合适的染膏...' },
-  { id: 23, title: '单支染膏与双氧奶的最佳搭配比例', summary: '不同发质和颜色需求下的最佳调配方案...' }
-];
+const hairColorArticles = ref<any[]>([]);
+const hairCareArticles = ref<any[]>([]);
 
-const hairCareArticles: CategoryArticle[] = [
-  { id: 24, title: '染发后如何正确护理头发', summary: '专业洗护产品推荐和日常护理技巧...' },
-  { id: 25, title: '修复受损发质的专业方案', summary: '针对染发后受损发质的修复流程...' },
-  { id: 26, title: '夏季头发护理的关键点', summary: '高温季节如何保持头发健康和发色持久...' }
-];
-
-const scrollToSection = (id: string) => {
-  const element = document.getElementById(id);
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth' });
+const fetchHairColorArticles = async () => {
+  try {
+    const data = await getArticlesByPage({
+      articleType: 1,
+      statuss: 1,
+      isRecommend: 1,
+      pageNumber: 1,
+      pageSize: 3
+    });
+    console.log("hairColorArticles:", data);
+    if (data.data && data.data.lists) {
+      hairColorArticles.value = data.data.lists.map((item: any) => ({
+        id: item.id,
+        title: item.title || '暂无标题',
+        introduce: item.introduce || item.content?.substring(0, 100) || '暂无简介'
+      }));
+    }
+  } catch (error) {
+    console.error('获取单支染膏文章失败:', error);
   }
 };
 
-const switchTab = (tabKey: string) => {
+const fetchHairCareArticles = async () => {
+  try {
+    const data = await getArticlesByPage({
+      articleType: 5,
+      statuss: 1,
+      isRecommend: 1,
+      pageNumber: 1,
+      pageSize: 3
+    });
+    console.log("hairCareArticles:", data);
+    if (data.data && data.data.lists) {
+      hairCareArticles.value = data.data.lists.map((item: any) => ({
+        id: item.id,
+        title: item.title || '暂无标题',
+        introduce: item.introduce || item.content?.substring(0, 100) || '暂无简介'
+      }));
+    }
+  } catch (error) {
+    console.error('获取洗护产品文章失败:', error);
+  }
+};
+
+const switchTab = async (tabKey: string) => {
   activeTab.value = tabKey;
+  
+  // 切换标签时获取对应数据
+  if (tabKey === 'daily' && dailyArticles.value.length === 0) {
+    await fetchDailyArticles();
+  } else if (tabKey === 'weekly' && weeklyArticles.value.length === 0) {
+    await fetchWeeklyArticles();
+  } else if (tabKey === 'monthly' && monthlyArticles.value.length === 0) {
+    await fetchMonthlyArticles();
+  }
+  
   // 可选：添加视觉反馈
   nextTick(() => {
     const activeTabEl = document.querySelector('.tab.active');
@@ -296,9 +310,92 @@ const fetchLatestArticles = async () => {
   }
 };
 
-onMounted(() => {
+const fetchDailyArticles = async () => {
+  try {
+    loading.value = true;
+    const { startTime, endTime } = getTimeRange('daily');
+    const params ={
+      articleType: -1,
+      statuss: 1,
+      isRecommend: 1,
+      pageNumber: 1,
+      pageSize: 10,
+      startTime,
+      endTime
+    };
+    console.log("getArticlesByPage params:",params);
+    const data = await getArticlesByPage(params);
+    console.log("dailyArticles:", data);
+    if (data.data && data.data.lists) {
+      dailyArticles.value = data.data.lists;
+    }
+  } catch (error) {
+    console.error('获取日榜文章失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchWeeklyArticles = async () => {
+  try {
+    loading.value = true;
+    const { startTime, endTime } = getTimeRange('weekly');
+    const params = {
+      articleType: -1,
+      statuss: 1,
+      isRecommend: 1,
+      pageNumber: 1,
+      pageSize: 10,
+      startTime,
+      endTime
+    };
+    console.log("params:",params);
+    const data = await getArticlesByPage(params);
+    console.log("weeklyArticles:", data);
+    if (data.data && data.data.lists) {
+      weeklyArticles.value = data.data.lists;
+    }
+  } catch (error) {
+    console.error('获取周榜文章失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchMonthlyArticles = async () => {
+  try {
+    loading.value = true;
+    const { startTime, endTime } = getTimeRange('monthly');
+    const params ={
+      articleType: -1,
+      statuss: 1,
+      isRecommend: 1,
+      pageNumber: 1,
+      pageSize: 10,
+      startTime,
+      endTime
+    };
+    console.log("params:",params);
+    const data = await getArticlesByPage(params);
+    console.log("monthlyArticles:", data);
+    if (data.data && data.data.lists) {
+      monthlyArticles.value = data.data.lists;
+    }
+  } catch (error) {
+    console.error('获取月榜文章失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(async () => {
   // 组件挂载后获取最新文章
-  fetchLatestArticles();
+  await fetchLatestArticles();
+  // 预加载日榜数据
+  await fetchDailyArticles();
+  // 获取分类文章
+  await fetchHairColorArticles();
+  await fetchHairCareArticles();
 });
 </script>
 
@@ -490,8 +587,7 @@ onMounted(() => {
               line-height: 1.6;
               overflow: hidden;
               text-overflow: ellipsis;
-              display: -webkit-box;
-              -webkit-line-clamp: 2;
+              display: -webkit-box; 
               -webkit-box-orient: vertical;
             }
 
@@ -593,7 +689,6 @@ onMounted(() => {
               overflow: hidden;
               text-overflow: ellipsis;
               display: -webkit-box;
-              -webkit-line-clamp: 2;
               -webkit-box-orient: vertical;
             }
           }

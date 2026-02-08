@@ -1,5 +1,6 @@
 ﻿using DTO;
 using DTO.Article;
+using DTO.WebArticle;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -12,7 +13,7 @@ namespace WebApiBI.Controllers
     public class WebArticleController : BaseController
     {
         [HttpPost]
-        public ActionResult GetLastByPage([FromBody] DTO_Article model)
+        public ActionResult GetLastByPage([FromBody] DTO_WebArticle model)
         {
             DataResult ds = webArticleBaseService.getWebArticleByPage(model);
             return Json(ds);
