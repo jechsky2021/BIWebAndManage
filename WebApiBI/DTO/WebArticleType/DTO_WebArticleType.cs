@@ -8,5 +8,6 @@ namespace DTO.WebArticleType
     {
         public long id { get; set; } = 0;
         public string atName { get; set; } = string.Empty;
+        public long parentId { get; set; } = 0;
     }
 }

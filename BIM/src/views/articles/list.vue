@@ -33,13 +33,13 @@
           <el-select
             v-model="searchForm.articleType"
             placeholder="请选择分类"
-            style="width: 150px"
+            style="width: 250px"
           >
             <el-option label="全部" value="-1" />
             <el-option 
-              v-for="category in categories" 
+              v-for="category in hierarchicalCategories" 
               :key="category.id" 
-              :label="category.atName" 
+              :label="category.displayName" 
               :value="category.id" 
             />
           </el-select>
@@ -80,9 +80,9 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="分类" width="120">
+        <el-table-column label="分类" width="250">
           <template #default="scope">
-            {{ getCategoryName(scope.row.articleType) }}
+            {{ getCategoryWithParentName(scope.row.articleType) }}
           </template>
         </el-table-column>
         
@@ -165,6 +165,7 @@ const loading = ref(false)
 const articles = ref([])
 const total = ref(0)
 const categories = ref([])
+const hierarchicalCategories = ref([])
 
 // 格式化日期（返回日期对象，用于API参数）
 const formatDate = (date) => {
@@ -180,6 +181,47 @@ const formatDateDisplay = (date) => {
 const getCategoryName = (categoryId) => {
   const category = categories.value.find(cat => cat.id === categoryId)
   return category ? category.atName : categoryId || '未分类'
+}
+
+// 获取带父级分类名称的完整分类名称
+const getCategoryWithParentName = (categoryId) => {
+  const category = hierarchicalCategories.value.find(cat => cat.id === categoryId)
+  return category ? category.displayName : getCategoryName(categoryId)
+}
+
+// 构建层级分类结构（带显示名称）
+const buildHierarchicalCategories = (categoriesList) => {
+  const categoryMap = {}
+  const result = []
+  
+  // 首先创建所有分类的映射
+  categoriesList.forEach(category => {
+    categoryMap[category.id] = {
+      ...category,
+      depth: 0
+    }
+  })
+  
+  // 构建层级关系并生成显示名称
+  categoriesList.forEach(category => {
+    const parentId = category.parentId || '0'
+    if (parentId === '0' || parentId === 0) {
+      // 顶级分类
+      categoryMap[category.id].displayName = category.atName
+      result.push(categoryMap[category.id])
+    } else if (categoryMap[parentId]) {
+      // 子分类
+      categoryMap[category.id].displayName = `${categoryMap[parentId].displayName} > ${category.atName}`
+      categoryMap[category.id].depth = categoryMap[parentId].depth + 1
+      result.push(categoryMap[category.id])
+    } else {
+      // 找不到父级，显示为顶级
+      categoryMap[category.id].displayName = category.atName
+      result.push(categoryMap[category.id])
+    }
+  })
+  
+  return result
 }
 
 // 导航到表单页
@@ -269,7 +311,11 @@ const fetchCategories = async () => {
     console.log("获取分类列表")
     const data = await getArticleTypeByPage({ pageNumber: 1, pageSize: 100 })
     console.log("data:",data)
-    categories.value = data.data.lists || []
+    const categoriesList = data.data.lists || []
+    categories.value = categoriesList
+    
+    // 构建层级分类（带显示名称）
+    hierarchicalCategories.value = buildHierarchicalCategories(categoriesList)
   } catch (error) {
     console.error('获取分类列表失败:', error)
   }

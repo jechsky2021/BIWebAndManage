@@ -113,7 +113,7 @@ export default {
     // 加载分类数据
     async loadCategories() {
       try {
-        const response = await getArticleTypeByPage({ pageNumber: 1, pageSize: 10 });
+        const response = await getArticleTypeByPage({ pageNumber: 1, pageSize: 8 });
         // console.log("response:",response)
         if (response.data && response.data.lists) {
           this.categories = response.data.lists;

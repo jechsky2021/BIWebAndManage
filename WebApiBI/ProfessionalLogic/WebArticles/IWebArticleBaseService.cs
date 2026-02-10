@@ -11,5 +11,6 @@ namespace ProfessionalLogic.WebArticles
     {
         DataResult getWebArticleByPage(DTO_WebArticle model);
         DataResult getWebDetailById(DTO_Id model);
+        DataResult updateWebArticle(DTO_Article model);
     }
 }

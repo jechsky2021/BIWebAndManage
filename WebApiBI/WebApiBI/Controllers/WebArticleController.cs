@@ -15,6 +15,7 @@ namespace WebApiBI.Controllers
         [HttpPost]
         public ActionResult GetLastByPage([FromBody] DTO_WebArticle model)
         {
+
             DataResult ds = webArticleBaseService.getWebArticleByPage(model);
             return Json(ds);
         }
@@ -23,7 +24,15 @@ namespace WebApiBI.Controllers
         public ActionResult GetDetailById([FromBody] DTO_Id dTO_Id)
         {
             DataResult ds = webArticleBaseService.getWebDetailById(dTO_Id);
-            ds.data = JsonConvert.DeserializeObject<List<DTO_Article>>(ds.data?.ToString() ?? "0") ?? new List<DTO_Article>();
+            List<DTO_Article> ls = JsonConvert.DeserializeObject<List<DTO_Article>>(ds.data?.ToString() ?? "0") ?? new List<DTO_Article>();
+            ds.data = ls;
+
+            if(ls.Count > 0)
+            {
+                ls.FirstOrDefault().pageViews++;
+            }
+            webArticleBaseService.updateWebArticle(ls.FirstOrDefault());
+
             return Json(ds);
         }
 

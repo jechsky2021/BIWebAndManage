@@ -11,6 +11,7 @@ namespace DTO.WebArticle
         public int statuss { get; set; } // 0：草稿 1：已发布 2：已下架
 
         public sbyte isRecommend { get; set; }
+        public long parentId { get; set; }
         public string? startTime { get; set; }
         public string? endTime { get; set; }
     }

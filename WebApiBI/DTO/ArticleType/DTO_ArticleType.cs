@@ -9,5 +9,6 @@ namespace DTO.ArticleType
         public long id { get; set; }
         public string atName { get; set; } = string.Empty;
         public long atSort { get; set; }
+        public long parentId { get; set; }
     }
 }

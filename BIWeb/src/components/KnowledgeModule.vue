@@ -36,10 +36,10 @@
         </div>
         <div class="card-content">
           <h3 class="card-title">{{ item.title }}</h3>
-          <p class="card-summary">{{ item.summary }}</p>
+          <p class="card-summary">{{ item.introduce }}</p>
           <div class="card-meta">
-            <span class="publish-date">{{ item.publishDate }}</span>
-            <span class="read-count">阅读 {{ item.readCount }}</span>
+            <span class="publish-date">{{ dayjsFormat(item.createTime) }}</span>
+            <span class="read-count">阅读 {{ item.pageViews }}</span>
           </div>
         </div>
       </router-link>
@@ -108,6 +108,8 @@
 </template>
 
 <script>
+import dayjs from 'dayjs';
+
 export default {
   name: 'KnowledgeModule',
   props: {
@@ -158,8 +160,10 @@ export default {
   computed: {
     // 获取过滤后的知识数据
     filteredKnowledge() {
+      // 确保knowledgeData是数组
+      const data = Array.isArray(this.knowledgeData) ? this.knowledgeData : [];
       // 根据activeFilter进行排序或过滤
-      let sortedData = [...this.knowledgeData];
+      let sortedData = [...data];
       
       switch (this.activeFilter) {
         case 'latest':
@@ -198,6 +202,9 @@ export default {
   },
   
   methods: {
+    dayjsFormat(date) {
+      return dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+    },
     // 跳转到指定页面
     goToPage(page) {
       if (page >= 1 && page <= this.totalPages) {
@@ -329,7 +336,6 @@ export default {
           line-height: 1.6;
           margin: 0 0 16px 0;
           display: -webkit-box;
-          -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }

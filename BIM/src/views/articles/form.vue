@@ -39,11 +39,11 @@
         </el-form-item>
         
         <el-form-item label="分类" prop="articleType">
-          <el-select v-model="form.articleType" placeholder="请选择分类" style="width: 200px">
+          <el-select v-model="form.articleType" placeholder="请选择分类" style="width: 300px">
             <el-option 
-              v-for="category in categories" 
+              v-for="category in hierarchicalCategories" 
               :key="category.id" 
-              :label="category.atName" 
+              :label="category.indentName" 
               :value="category.id" 
             />
           </el-select>
@@ -191,6 +191,7 @@ const isEditMode = computed(() => !!route.params.id)
 
 // 分类列表
 const categories = ref([])
+const hierarchicalCategories = ref([])
 
 const form = reactive({
   title: '',
@@ -206,10 +207,50 @@ const form = reactive({
 const fetchCategories = async () => {
   try {
     const data = await getArticleTypeByPage({ pageNumber: 1, pageSize: 100 })
-    categories.value = data.data.lists || []
+    const categoriesList = data.data.lists || []
+    categories.value = categoriesList
+    
+    // 构建层级分类（带显示名称）
+    hierarchicalCategories.value = buildHierarchicalCategories(categoriesList)
   } catch (error) {
     console.error('获取分类列表失败:', error)
   }
+}
+
+// 构建层级分类结构（带缩进名称）
+const buildHierarchicalCategories = (categoriesList) => {
+  const categoryMap = {}
+  const result = []
+  
+  // 首先创建所有分类的映射
+  categoriesList.forEach(category => {
+    categoryMap[category.id] = {
+      ...category,
+      depth: 0
+    }
+  })
+  
+  // 构建层级关系并生成缩进名称
+  categoriesList.forEach(category => {
+    const parentId = category.parentId || '0'
+    if (parentId === '0' || parentId === 0) {
+      // 顶级分类
+      categoryMap[category.id].indentName = category.atName
+      result.push(categoryMap[category.id])
+    } else if (categoryMap[parentId]) {
+      // 子分类
+      const indent = ' '.repeat(categoryMap[parentId].depth * 2) + '└─ '
+      categoryMap[category.id].indentName = indent + category.atName
+      categoryMap[category.id].depth = categoryMap[parentId].depth + 1
+      result.push(categoryMap[category.id])
+    } else {
+      // 找不到父级，显示为顶级
+      categoryMap[category.id].indentName = category.atName
+      result.push(categoryMap[category.id])
+    }
+  })
+  
+  return result
 }
 
 const rules = {
@@ -293,7 +334,7 @@ const handleSubmit = async () => {
     const params = {
       ...form,
       statuss: Number(form.statuss),
-      isRecommend: form.isRecommend ? 1 : 0,
+      isRecommend: form.isRecommend ? 1 : 0
     }
 
     if (isEditMode.value) {
