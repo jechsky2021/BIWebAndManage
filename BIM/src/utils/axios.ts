@@ -30,6 +30,15 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {
+    console.log("respose:",response)
+    if (response.code === 401) {
+      ElMessage({ message: '会话过期，请重新登录', type: 'warning' })
+      const userStore = useUserStore()
+      userStore.logout()
+      window.location.href = '/login'
+      return Promise.reject(new Error('会话过期'))
+    }
+
      return response.data
   },
   (error) => {
@@ -41,9 +50,12 @@ service.interceptors.response.use(
 // 文件服务的API路径前缀
 const FILES_BASE_PREFIX = '/v1.0/pictureServer'
 
+// 文件服务的基础URL
+const FILE_SERVER_BASE_URL = (import.meta as any).env.VITE_FILE_SERVER_BASE_URL || 'https://www.hairpa.com'
+
 // 文件服务的axios实例
 const fileService = axios.create({
-  baseURL: `${(import.meta as any).env.VITE_API_BASE_URL || '/api'}${FILES_BASE_PREFIX}`,
+  baseURL: `${FILE_SERVER_BASE_URL}${FILES_BASE_PREFIX}`,
   timeout: 50000,
   headers: {
     'Content-Type': 'application/json;charset=utf-8'
@@ -56,7 +68,7 @@ fileService.interceptors.request.use(
     const userStore = useUserStore()
     if (userStore.token) {
       // config.headers["x-auth-token"] = userStore.token
-      config.headers.Authorization = `Bearer ${userStore.token}`
+      // config.headers.Authorization = `Bearer ${userStore.token}`
     }
     return config
   },
@@ -77,8 +89,8 @@ fileService.interceptors.response.use(
 )
 
 // 图片服务基础URL
-const pictureServerBaseUrl = `${(import.meta as any).env.VITE_API_BASE_URL || 'http://tevv37568542.vicp.fun'}${FILES_BASE_PREFIX}`
+const pictureServerBaseUrl = `${(import.meta as any).env.VITE_FILE_SERVER_BASE_URL || 'https://www.hairpa.com'}${FILES_BASE_PREFIX}`
 
 
 export default service
-export { fileService, pictureServerBaseUrl }
+export { fileService,pictureServerBaseUrl }

@@ -93,7 +93,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getArticleByPage,getDetailById, addArticle,updateArticle } from '../../api/articles'
 import { getArticleTypeByPage } from '../../api/articleType'
-import { uploadFiles } from '../../api/files'
+import { uploadFiles,saveGoodsPic } from '../../api/files'
+import { pictureServerBaseUrl } from '../../utils/axios'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
@@ -105,11 +106,149 @@ const loading = ref(false)
 const editorRef = ref(null)
 const fileInput = ref(null)
 
+
+const baseImgFolder = 'article'
+
+
+// 将文件转换为 base64 字符串
+const getBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target.result
+      resolve(result)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
 // 自定义图片处理器
 const imageHandler = () => {
   // 触发隐藏的 file input
   fileInput.value.click()
 }
+
+// 图片缩放功能（点选后滚轮缩放）
+let imageZoomInitialized = false
+let selectedImage = null
+
+const setupImageZoom = () => {
+  if (imageZoomInitialized) return
+  
+  imageZoomInitialized = true
+  
+  setTimeout(() => {
+    const quill = editorRef.value.getQuill()
+    const editor = quill.root
+    
+    // 为所有图片添加点击事件（用于选择）
+    editor.addEventListener('click', (e) => {
+      if (e.target.tagName === 'IMG') {
+        // 移除之前选中图片的样式
+        if (selectedImage) {
+          selectedImage.classList.remove('image-selected')
+        }
+        // 选中当前图片
+        selectedImage = e.target
+        selectedImage.classList.add('image-selected')
+        e.stopPropagation()
+      } else {
+        // 点击其他地方取消选择
+        if (selectedImage) {
+          selectedImage.classList.remove('image-selected')
+          selectedImage = null
+        }
+      }
+    })
+    
+    // 为编辑器添加滚轮事件
+    editor.addEventListener('wheel', (e) => {
+      if (selectedImage) {
+        e.preventDefault()
+        handleImageZoom(selectedImage, e.deltaY)
+      }
+    })
+  }, 100)
+}
+
+// 处理图片滚轮缩放
+const handleImageZoom = (img, deltaY) => {
+  // 获取当前宽度（默认为100%）
+  let currentWidth = img.style.width
+  let widthPercent = 100
+  
+  if (currentWidth) {
+    widthPercent = parseFloat(currentWidth)
+  }
+  
+  // 根据滚轮方向调整大小（每次5%）
+  if (deltaY < 0) {
+    // 向上滚动，放大
+    widthPercent = Math.min(widthPercent + 5, 200) // 最大200%
+  } else {
+    // 向下滚动，缩小
+    widthPercent = Math.max(widthPercent - 5, 30) // 最小30%
+  }
+  
+  // 应用新宽度
+  img.style.width = widthPercent + '%'
+  img.style.height = 'auto'
+  
+  // 添加缩放动画
+  img.style.transition = 'width 0.2s ease'
+}
+
+// 监听编辑器内容变化，为新插入的图片添加点击事件
+const setupImageZoomObserver = () => {
+  const quill = editorRef.value.getQuill()
+  const editor = quill.root
+  
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.tagName === 'IMG') {
+          // 为新插入的图片添加点击事件
+          node.addEventListener('click', (e) => {
+            // 移除之前选中图片的样式
+            if (selectedImage) {
+              selectedImage.classList.remove('image-selected')
+            }
+            // 选中当前图片
+            selectedImage = node
+            selectedImage.classList.add('image-selected')
+            e.stopPropagation()
+          })
+        } else if (node.children && node.children.length > 0) {
+          // 检查子节点
+          Array.from(node.children).forEach((child) => {
+            if (child.tagName === 'IMG') {
+              child.addEventListener('click', (e) => {
+                // 移除之前选中图片的样式
+                if (selectedImage) {
+                  selectedImage.classList.remove('image-selected')
+                }
+                // 选中当前图片
+                selectedImage = child
+                selectedImage.classList.add('image-selected')
+                e.stopPropagation()
+              })
+            }
+          })
+        }
+      })
+    })
+  })
+  
+  observer.observe(editor, {
+    childList: true,
+    subtree: true
+  })
+}
+
+// 图片操作功能通过工具栏现有选项实现
+// 对齐功能已在工具栏中提供
+// 尺寸调整通过选择图片后使用工具栏的大小选项实现
 
 const editorOptions = ref({
   theme: 'snow',
@@ -140,6 +279,7 @@ const editorOptions = ref({
 
 // 上传图片
 const uploadImage = async (event) => {
+console.log("uploadImage");
   const file = event.target.files[0]
   if (!file) return
   
@@ -166,12 +306,54 @@ const uploadImage = async (event) => {
     quill.insertEmbed(range.index, 'image', '/loading.gif')
     
     // 这里替换为你的上传API
-    const response = await uploadFiles(formData)
-    const imageUrl = response.url
+    const request = {
+      fileName: `${baseImgFolder}\/${Date.now().toString()}`,
+      base64Str:  await getBase64(file)
+    }
+    console.log("request",request)
+    const response = await saveGoodsPic(request)
+    console.log("response",response)
     
-    // 删除 loading 图片，插入真实图片
-    quill.deleteText(range.index, 1)
-    quill.insertEmbed(range.index, 'image', imageUrl)
+    if(response.data.code === '0'){
+      ElMessage.success('图片上传成功')
+      // 删除 loading 图片，获取图片原始尺寸后插入真实图片
+      const imagePath = response.data.data
+      const imageUrl = `${pictureServerBaseUrl}${imagePath}`
+      console.log('图片完整URL:', imageUrl)
+      
+      // 获取图片原始尺寸
+      const img = new Image()
+      img.src = imageUrl
+      img.onload = () => {
+        const width = img.naturalWidth
+        const height = img.naturalHeight
+        console.log('图片原始尺寸:', width, 'x', height)
+        
+        // 计算显示尺寸（最大宽度限制为100%，保持比例）
+        const maxWidth = 500
+        let displayWidth = width
+        let displayHeight = height
+        
+        if (width > maxWidth) {
+          const ratio = maxWidth / width
+          displayWidth = maxWidth
+          displayHeight = height * ratio
+        }
+        
+        // 删除 loading 图片，插入带尺寸的图片
+        quill.deleteText(range.index, 1)
+        
+        // 使用自定义方式插入图片，带有宽度和高度样式，支持对齐和调整大小
+        const imgHTML = `<img src="${imageUrl}" style="width: ${displayWidth}px; height: ${displayHeight}px; max-width: 100%;" width="${displayWidth}" height="${displayHeight}" class="quill-image"/>`
+        quill.clipboard.dangerouslyPasteHTML(range.index, imgHTML)
+        
+        // 确保新上传的图片也能立即支持缩放功能
+        setupImageZoom()
+       
+      }
+    }else{
+      ElMessage.error('图片上传失败')
+    }
     
   } catch (error) {
     console.error('上传失败:', error)
@@ -371,6 +553,12 @@ const handleSubmit = async () => {
 onMounted(() => {
   fetchCategories()
   loadArticle()
+  
+  // 初始化图片缩放功能
+  setTimeout(() => {
+    setupImageZoom()
+    setupImageZoomObserver()
+  }, 500)
 })
 
 </script>
@@ -424,6 +612,64 @@ onMounted(() => {
 :deep(.ql-editor) {
   min-height: 300px;
   padding: 12px;
+  
+  /* 图片样式 */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* 块级元素对齐 */
+  p.ql-align-center,
+  div.ql-align-center,
+  li.ql-align-center {
+    text-align: center;
+  }
+  
+  p.ql-align-right,
+  div.ql-align-right,
+  li.ql-align-right {
+    text-align: right;
+  }
+  
+  p.ql-align-left,
+  div.ql-align-left,
+  li.ql-align-left {
+    text-align: left;
+  }
+  
+  /* 图片对齐 */
+  p.ql-align-center img,
+  div.ql-align-center img,
+  li.ql-align-center img {
+    display: block;
+    margin: 0 auto;
+  }
+  
+  p.ql-align-right img,
+  div.ql-align-right img,
+  li.ql-align-right img {
+    display: block;
+    margin-left: auto;
+  }
+  
+  p.ql-align-left img,
+  div.ql-align-left img,
+  li.ql-align-left img {
+    display: block;
+    margin-right: auto;
+  }
+  
+  /* 图片尺寸控制 */
+  .quill-image {
+    cursor: pointer;
+  }
+  
+  /* 选中图片样式 */
+  .image-selected {
+    outline: 2px solid #409EFF;
+    cursor: zoom-in;
+  }
 }
 
 :deep(.ql-snow .ql-statusbar) {

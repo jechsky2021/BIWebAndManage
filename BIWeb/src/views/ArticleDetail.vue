@@ -231,6 +231,58 @@ onMounted(() => {
       }
     }
 
+    /* 图片样式 */
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    /* 块级元素对齐 */
+    :deep(p.ql-align-center),
+    :deep(div.ql-align-center),
+    :deep(li.ql-align-center) {
+      text-align: center;
+    }
+    
+    :deep(p.ql-align-right),
+    :deep(div.ql-align-right),
+    :deep(li.ql-align-right) {
+      text-align: right;
+    }
+    
+    :deep(p.ql-align-left),
+    :deep(div.ql-align-left),
+    :deep(li.ql-align-left) {
+      text-align: left;
+    }
+    
+    /* 图片对齐 */
+    :deep(p.ql-align-center img),
+    :deep(div.ql-align-center img),
+    :deep(li.ql-align-center img) {
+      display: block;
+      margin: 0 auto;
+    }
+    
+    :deep(p.ql-align-right img),
+    :deep(div.ql-align-right img),
+    :deep(li.ql-align-right img) {
+      display: block;
+      margin-left: auto;
+    }
+    
+    :deep(p.ql-align-left img),
+    :deep(div.ql-align-left img),
+    :deep(li.ql-align-left img) {
+      display: block;
+      margin-right: auto;
+    }
+    
+    /* 图片尺寸控制 */
+    :deep(.quill-image) {
+      cursor: pointer;
+    }
+
     .color-showcase {
       display: flex;
       align-items: center;
