@@ -1,16 +1,13 @@
 <template>
-  <div class="category-page">
-    <!-- 导航栏和分类栏会通过App.vue自动包含 -->
-    
-    <!-- 二级页面内容 -->
+  <div class="article-list">
     <main class="main-content">
       <div class="container">
         <div class="content-wrapper">
           <div class="main-column">
-            <!-- 分类标题和描述 -->
-            <div class="category-header">
-              <h1 class="category-title">{{ categoryName }}</h1>
-              <p class="category-description">{{ categoryDescription }}</p>
+            <!-- 页面标题 -->
+            <div class="page-header">
+              <h1 class="page-title">文章列表</h1>
+              <p class="page-description">浏览所有美业相关文章</p>
             </div>
 
             <!-- 筛选和排序 -->
@@ -24,6 +21,19 @@
                 <button class="view-btn" :class="{ active: activeViewMode === 'list' }" @click="activeViewMode = 'list'">列表</button>
                 <button class="view-btn" :class="{ active: activeViewMode === 'grid' }" @click="activeViewMode = 'grid'">网格</button>
               </div>
+            </div>
+
+            <!-- 分类筛选 -->
+            <div class="category-filter">
+              <button 
+                v-for="category in categories" 
+                :key="category.articleType" 
+                class="category-btn"
+                :class="{ active: selectedCategory === category.articleType }"
+                @click="selectedCategory = category.articleType"
+              >
+                {{ category.atName }}
+              </button>
             </div>
 
             <!-- 内容列表 -->
@@ -42,15 +52,27 @@
                   <p class="content-summary">{{ article.introduce }}</p>
                   <div class="content-meta">
                     <span class="publish-date">{{ dayjs(article.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
-                    <span class="read-count">阅读 {{ article.readCount }}</span>
+                    <span class="read-count">阅读 {{ article.pageViews }}</span>
                   </div>
                 </div>
               </div>
             </div>
 
+            <!-- 加载状态 -->
+            <div v-if="loading" class="loading-state">
+              <div class="loading-spinner"></div>
+              <p>加载中...</p>
+            </div>
+
+            <!-- 空状态 -->
+            <div v-if="!loading && filteredArticles.length === 0" class="empty-state">
+              <div class="empty-icon">📄</div>
+              <p>暂无文章</p>
+            </div>
+
             <!-- 分页 -->
-            <div class="pagination">
-              <button class="page-btn prev" :disabled="currentPage === 1">上一页</button>
+            <div v-if="!loading && filteredArticles.length > 0" class="pagination">
+              <button class="page-btn prev" :disabled="currentPage === 1" @click="prevPage">上一页</button>
               <button 
                 v-for="page in totalPages" 
                 :key="page" 
@@ -60,7 +82,7 @@
               >
                 {{ page }}
               </button>
-              <button class="page-btn next" :disabled="currentPage === totalPages">下一页</button>
+              <button class="page-btn next" :disabled="currentPage === totalPages" @click="nextPage">下一页</button>
             </div>
 
             <!-- 热门标签 -->
@@ -78,81 +100,74 @@
         </div>
       </div>
     </main>
-
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { getArticlesByPage, getSearchArticles } from '../api/articles';
+import { useRouter } from 'vue-router';
+import { getArticlesByPage } from '../api/articles';
+import { getArticleTypeByPage } from '../api/articleTypes';
 import RankingsModule from '../components/RankingsModule.vue';
 import dayjs from 'dayjs';
- 
 
-const route = useRoute();
 const router = useRouter();
-const categoryId = computed(() => route.params.id || '1');
-const keywords = computed(() => route.query.keywords || '');
-const isSearch = computed(() => categoryId.value === 'search');
-const categoryName = ref('美业资讯分类');
-const categoryDescription = ref('这里是关于美业的最新资讯和产品信息');
 const currentPage = ref(1);
-const totalPages = ref(5);
+const totalPages = ref(1);
 const articles = ref<any[]>([]);
+const categories = ref<any[]>([]);
+const selectedCategory = ref<number | null>(null);
 const popularTags = ref<string[]>(['染发技巧', '护发知识', '产品测评', '行业动态', '潮流趋势', '专业工具', '护理方法', '色彩搭配']);
 const activeFilter = ref('latest');
 const activeViewMode = ref('list');
+const loading = ref(false);
 
 const handleTabChange = (tab: string) => {
   console.log('Tab changed to:', tab);
   // 可以在这里添加额外的逻辑，比如统计用户行为等
 };
 
+const loadCategories = async () => {
+  try {
+    const response = await getArticleTypeByPage({
+      parentId: 9,
+      pageNumber: 1,
+      pageSize: 20
+    });
+    
+    if (response.data && response.data.lists) {
+      categories.value = response.data.lists.map((item: any) => ({
+        articleType: item.articleType,
+        atName: item.atName || '未分类'
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to load categories:', error);
+  }
+};
 
 const loadArticles = async () => {
   try {
-    let response;
-    
-    if (isSearch.value && keywords.value) {
-      // 搜索模式
-      const params = {
-        keywords: keywords.value,
-        pageNumber: currentPage.value,
-        pageSize: 10
-      };
-      console.log("params:",params)
-      response = await getSearchArticles(params);
-      console.log("response",response)
-      categoryName.value = `搜索结果: ${keywords.value}`;
-      categoryDescription.value = `找到相关文章`;
-    } else {
-      // 分类模式
-      const params ={
-        articleType: Number(categoryId.value) ,
-        statuss: 1,
-        isRecommend: 1,
-        pageNumber: currentPage.value,
-        pageSize: 10
-      };
-      response = await getArticlesByPage(params);
-      categoryName.value = '美业资讯分类';
-      categoryDescription.value = '这里是关于美业的最新资讯和产品信息';
-    }
+    loading.value = true;
+    const params = {
+      articleType: selectedCategory.value || -1,
+      statuss: 1,
+      isRecommend: activeFilter.value === 'recommend' ? 1 : null,
+      pageNumber: currentPage.value,
+      pageSize: 10
+    };
 
-    //console.log("params:",params);
-    //console.log("response:",response);
+    const response = await getArticlesByPage(params);
     
-    if (response.sign === "1" && response.data ) {
+    if (response.sign === '1' && response.data) {
       articles.value = response.data.lists.map((article: any, index: number) => ({
         id: article.id,
         title: article.title || '暂无标题',
         introduce: article.introduce || article.content?.substring(0, 100) || '暂无简介',
         createTime: article.createTime || new Date().toLocaleDateString(),
-        readCount: article.pageViews || 0,
+        pageViews: article.pageViews || 0,
         color: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7DC6F', '#BB8FCE', '#52BE80', '#F8C471', '#85C1E9'][index % 8]
       }));
-      console.log("articles:",articles.value);
       
       if (response.data.total) {
         totalPages.value = Math.ceil(response.data.total / 10);
@@ -160,6 +175,8 @@ const loadArticles = async () => {
     }
   } catch (error) {
     console.error('Failed to load articles:', error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -172,34 +189,40 @@ const filteredArticles = computed(() => {
   
   switch (activeFilter.value) {
     case 'latest':
-      // 按发布日期降序排序
-      return filtered.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      return filtered.sort((a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime());
     case 'hot':
-      // 按阅读量降序排序
-      return filtered.sort((a, b) => b.readCount - a.readCount);
+      return filtered.sort((a, b) => b.pageViews - a.pageViews);
     case 'recommend':
-      // 筛选阅读量超过3000的文章
-      return filtered.filter(article => article.readCount > 3000).sort((a, b) => b.readCount - a.readCount);
+      return filtered;
     default:
       return filtered;
   }
 });
 
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
 onMounted(() => {
+  loadCategories();
   loadArticles();
 });
 
-watch([currentPage, keywords, isSearch], () => {
-  // 当搜索关键字或分类变化时，重置到第一页
-  if (keywords.value || isSearch.value) {
-    currentPage.value = 1;
-  }
+watch([currentPage, selectedCategory, activeFilter], () => {
   loadArticles();
 });
 </script>
 
 <style lang="scss" scoped>
-.category-page {
+.article-list {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -218,7 +241,7 @@ watch([currentPage, keywords, isSearch], () => {
 
   .content-wrapper {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 350px;
     gap: 30px;
   }
 
@@ -227,27 +250,27 @@ watch([currentPage, keywords, isSearch], () => {
   }
 
   .sidebar {
-    max-width: 400px;
+    width: 350px;
     position: sticky;
     top: 30px;
     align-self: start;
   }
 
-  .category-header {
+  .page-header {
     background-color: #fff;
     padding: 30px;
     border-radius: 8px;
     margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-    .category-title {
+    .page-title {
       font-size: 32px;
       font-weight: bold;
       color: #333;
       margin-bottom: 12px;
     }
 
-    .category-description {
+    .page-description {
       font-size: 16px;
       color: #666;
       line-height: 1.6;
@@ -275,51 +298,23 @@ watch([currentPage, keywords, isSearch], () => {
       background-color: #fff;
       border-radius: 20px;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
       font-size: 14px;
       color: #666;
-
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 107, 107, 0.2), transparent);
-        transition: left 0.5s ease;
-      }
 
       &:hover {
         background-color: #f5f5f5;
         border-color: #ff6b6b;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         color: #ff6b6b;
-      }
-
-      &:hover::before {
-        left: 100%;
       }
 
       &.active {
         background-color: #ff6b6b;
         color: #fff;
         border-color: #ff6b6b;
-        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
-        transform: translateY(-1px);
-      }
-
-      &:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
     }
-    
+
     .view-btn {
       padding: 8px 16px;
       border: 1px solid #e0e0e0;
@@ -345,9 +340,43 @@ watch([currentPage, keywords, isSearch], () => {
     }
   }
 
+  .category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    background-color: #fff;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    .category-btn {
+      padding: 8px 16px;
+      border: 1px solid #e0e0e0;
+      background-color: #fff;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      color: #666;
+
+      &:hover {
+        background-color: #f5f5f5;
+        border-color: #ff6b6b;
+        color: #ff6b6b;
+      }
+
+      &.active {
+        background-color: #ff6b6b;
+        color: #fff;
+        border-color: #ff6b6b;
+      }
+    }
+  }
+
   .content-list {
     margin-bottom: 20px;
-    
+
     &.grid-view {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -419,38 +448,74 @@ watch([currentPage, keywords, isSearch], () => {
         color: #999;
       }
     }
-    
   }
-  
-  // 网格视图下的内容项样式
+
   .content-list.grid-view .content-item {
     display: flex;
     flex-direction: column;
     margin-bottom: 0;
     height: 100%;
-    
+
     .content-image {
       width: 100%;
       height: 200px;
       margin-bottom: 16px;
     }
-    
+
     .content-info {
       .content-title {
         font-size: 18px;
         margin-bottom: 8px;
       }
-      
+
       .content-summary {
         margin-bottom: 10px;
       }
-      
+
       .content-meta {
         margin-top: auto;
         flex-wrap: wrap;
         gap: 12px;
       }
     }
+  }
+
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    color: #999;
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #ff6b6b;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    color: #999;
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 
   .pagination {
@@ -521,7 +586,6 @@ watch([currentPage, keywords, isSearch], () => {
     }
   }
 
-  // 响应式设计
   @media (max-width: 1024px) {
     .content-wrapper {
       grid-template-columns: 1fr;
@@ -535,10 +599,10 @@ watch([currentPage, keywords, isSearch], () => {
   }
 
   @media (max-width: 768px) {
-    .category-header {
+    .page-header {
       padding: 20px;
 
-      .category-title {
+      .page-title {
         font-size: 24px;
       }
     }
@@ -557,6 +621,10 @@ watch([currentPage, keywords, isSearch], () => {
       }
     }
 
+    .category-filter {
+      justify-content: center;
+    }
+
     .content-item {
       flex-direction: column;
       gap: 16px;
@@ -573,22 +641,20 @@ watch([currentPage, keywords, isSearch], () => {
       }
     }
 
-    // 响应式网格视图
     .content-list.grid-view {
       grid-template-columns: 1fr;
       gap: 16px;
     }
-    
+
     .content-list.grid-view .content-item {
       .content-image {
         height: 160px;
       }
-      
+
       .content-info {
         .content-title {
           font-size: 16px;
         }
-         
       }
     }
 
@@ -596,8 +662,7 @@ watch([currentPage, keywords, isSearch], () => {
       flex-wrap: wrap;
     }
   }
-  
-  // 中等屏幕尺寸的响应式调整
+
   @media (min-width: 769px) and (max-width: 1024px) {
     .content-list.grid-view {
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

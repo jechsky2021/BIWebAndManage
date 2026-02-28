@@ -9,6 +9,7 @@ using ProfessionalLogic.roles;
 using ProfessionalLogic.users;
 using ProfessionalLogic.WebArticles;
 using ProfessionalLogic.webArticleTypes;
+using ProfessionalLogic.webUsers;
 
 namespace WebApiBI.Controllers
 {
@@ -47,7 +48,10 @@ namespace WebApiBI.Controllers
         protected IWebArticleTypeBaseService webArticleTypeBaseService =>
            HttpContext?.RequestServices?.GetRequiredService<IWebArticleTypeBaseService>()
            ?? throw new InvalidOperationException("IWebArticleTypeBaseService 未注册或 HttpContext 为 null。请在 Program.cs 中注册服务。");
-
+        
+        protected IWebUserBaseService webUserBaseService  =>
+           HttpContext?.RequestServices?.GetRequiredService<IWebUserBaseService>()
+           ?? throw new InvalidOperationException("IWebUserBaseService 未注册或 HttpContext 为 null。请在 Program.cs 中注册服务。");
 
 
     }

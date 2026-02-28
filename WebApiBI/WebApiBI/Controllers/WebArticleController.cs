@@ -1,5 +1,6 @@
 ﻿using DTO;
 using DTO.Article;
+using DTO.DTOMenu;
 using DTO.WebArticle;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,6 @@ namespace WebApiBI.Controllers
         [HttpPost]
         public ActionResult GetLastByPage([FromBody] DTO_WebArticle model)
         {
-
             DataResult ds = webArticleBaseService.getWebArticleByPage(model);
             return Json(ds);
         }
@@ -33,6 +33,13 @@ namespace WebApiBI.Controllers
             }
             webArticleBaseService.updateWebArticle(ls.FirstOrDefault());
 
+            return Json(ds);
+        }
+
+        [HttpPost]
+        public ActionResult GetSearchArticles([FromBody] DTO_KeyWords model)
+        {
+            DataResult ds = webArticleBaseService.getSearchArticles(model);
             return Json(ds);
         }
 

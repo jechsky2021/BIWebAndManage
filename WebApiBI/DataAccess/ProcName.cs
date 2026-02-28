@@ -20,6 +20,10 @@ namespace DataAccess
         public static readonly string proc_selectRolesByUid = "proc_selectRolesByUid";
         public static readonly string proc_deleteUserRole = "proc_deleteUserRole";
 
+        public static readonly string proc_updateWebUser = "proc_updateWebUser";
+        public static readonly string proc_updateWebUserAvatar = "proc_updateWebUserAvatar";
+        public static readonly string proc_selectUserById = "proc_selectUserById";
+
         #endregion
 
         #region userrole
@@ -67,6 +71,7 @@ namespace DataAccess
         public static readonly string proc_updatePageViews = "proc_updatePageViews";
 
         public static readonly string proc_selectWebArticleByPage = "proc_selectWebArticleByPage";
+        public static readonly string proc_searchArticle = "proc_searchArticle";
 
         #endregion
 

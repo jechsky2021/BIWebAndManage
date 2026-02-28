@@ -8,6 +8,7 @@ using ProfessionalLogic.roles;
 using ProfessionalLogic.users;
 using ProfessionalLogic.WebArticles;
 using ProfessionalLogic.webArticleTypes;
+using ProfessionalLogic.webUsers;
 using Serilog;
 using System.Text;
 
@@ -38,6 +39,7 @@ builder.Services.AddScoped<IArticleBaseService, ArticleBaseService>();
 builder.Services.AddScoped<IArticleTypeBaseService, ArticleTypeBaseService>();
 builder.Services.AddScoped<IWebArticleBaseService, WebArticleBaseService>();
 builder.Services.AddScoped<IWebArticleTypeBaseService, WebArticleTypeBaseService>();
+builder.Services.AddScoped<IWebUserBaseService, WebUserBaseService>();
 
 
 // 配置CORS
@@ -63,7 +65,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-            ValidateLifetime = true
+            //ValidateLifetime = true
+            ClockSkew = TimeSpan.Zero // 取消默认的5分钟过期宽限时间
         };
     });
 

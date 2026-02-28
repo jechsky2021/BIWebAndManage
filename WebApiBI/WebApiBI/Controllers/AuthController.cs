@@ -178,7 +178,7 @@ namespace WebApiBI.Controllers
         {
             var jwtKey = _config["Jwt:Key"] ?? "YourSuperSecretKeyHere-ChangeThis";
             var jwtIssuer = _config["Jwt:Issuer"] ?? "yourapp";
-            var expireMinutes = int.TryParse(_config["Jwt:ExpireMinutes"], out var m) ? m : 60;
+            var expireMinutes = int.TryParse(_config["Jwt:ExpireMinutes"], out var m) ? m : 1440;
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

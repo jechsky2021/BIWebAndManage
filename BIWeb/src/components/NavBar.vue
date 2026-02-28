@@ -42,7 +42,36 @@
         </div>
         
         <div class="user-actions">
-          <router-link to="/login" class="login-btn" @click="navigateTo('/login')">登录</router-link>
+          <template v-if="isLoggedIn">
+            <div class="user-dropdown" @click="toggleUserDropdown" v-click-outside="closeUserDropdown">
+              <span class="user-phone">{{ userPhone }}</span>
+              <svg class="dropdown-arrow" :class="{ 'arrow-up': showUserDropdown }" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <transition name="dropdown">
+                <div v-if="showUserDropdown" class="dropdown-menu">
+                  <router-link to="/user-center" class="dropdown-item" @click="closeUserDropdown">
+                    <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="12" cy="7" r="4" stroke-width="2"/>
+                    </svg>
+                    <span>个人中心</span>
+                  </router-link>
+                  <a href="javascript:;" class="dropdown-item" @click.prevent="handleLogout">
+                    <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <polyline points="16,17 21,12 16,7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <line x1="21" y1="12" x2="9" y2="12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>退出登录</span>
+                  </a>
+                </div>
+              </transition>
+            </div>
+          </template>
+          <template v-else>
+            <router-link to="/login" class="login-btn" @click="navigateTo('/login')">登录</router-link>
+          </template>
         </div>
       </div>
     </header>
@@ -67,13 +96,31 @@
 <script>
 import { getArticleTypeByPage } from '../api/articleTypes';
 
+const clickOutside = {
+  mounted(el, binding) {
+    el.clickOutsideEvent = (event) => {
+      if (!(el === event.target || el.contains(event.target))) {
+        binding.value();
+      }
+    };
+    document.addEventListener('click', el.clickOutsideEvent);
+  },
+  unmounted(el) {
+    document.removeEventListener('click', el.clickOutsideEvent);
+  },
+};
+
 export default {
   name: 'NavBar',
+  directives: {
+    clickOutside
+  },
   data() {
     return {
       activeDropdown: null,
       searchQuery: '',
       isSearchFocused: false,
+      showUserDropdown: false,
       // 分类数据
       categories: [],
       // 模拟搜索建议数据
@@ -107,6 +154,17 @@ export default {
     },
     showSuggestions() {
       return this.isSearchFocused && this.searchQuery.trim() && this.filteredSuggestions.length > 0;
+    },
+    isLoggedIn() {
+      return !!localStorage.getItem('token');
+    },
+    userPhone() {
+      const userInfo = localStorage.getItem('userInfo');
+      if (userInfo) {
+        const parsedInfo = JSON.parse(userInfo);
+        return parsedInfo.uPhone || '';
+      }
+      return '';
     }
   },
   methods: {
@@ -132,10 +190,11 @@ export default {
     performSearch() {
       if (this.searchQuery.trim()) {
         console.log('搜索:', this.searchQuery);
-        // 这里可以导航到搜索结果页面或触发搜索事件
-        // this.$router.push({ name: 'Search', query: { q: this.searchQuery } });
-        // 或者发出一个全局事件
-        this.$root.$emit('global-search', this.searchQuery);
+        // 导航到分类页面并传递搜索关键字
+        this.$router.push({ 
+          path: '/category/search', 
+          query: { keywords: this.searchQuery } 
+        });
         
         // 清空搜索框
         this.searchQuery = '';
@@ -145,6 +204,17 @@ export default {
     selectSuggestion(suggestion) {
       this.searchQuery = suggestion.title;
       this.performSearch();
+    },
+    toggleUserDropdown() {
+      this.showUserDropdown = !this.showUserDropdown;
+    },
+    closeUserDropdown() {
+      this.showUserDropdown = false;
+    },
+    handleLogout() {
+      this.showUserDropdown = false;
+      localStorage.clear()
+      this.$router.push('/login');
     }
   }
 }
@@ -164,7 +234,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
   }
@@ -326,6 +396,75 @@ export default {
 }
   }
 
+  .user-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .user-dropdown {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+
+      .user-phone {
+        color: #333;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .dropdown-arrow {
+        width: 16px;
+        height: 16px;
+        stroke: #666;
+        transition: transform 0.3s ease;
+
+        &.arrow-up {
+          transform: rotate(180deg);
+        }
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 8px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        min-width: 160px;
+        overflow: hidden;
+        z-index: 1000;
+
+        .dropdown-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px 16px;
+          color: #333;
+          text-decoration: none;
+          transition: all 0.2s ease;
+          font-size: 14px;
+
+          &:hover {
+            background-color: #fff5f5;
+            color: #ff6b6b;
+          }
+
+          .item-icon {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+          }
+        }
+      }
+    }
+  }
+
   .login-btn {
     padding: 8px 20px;
     background-color: #ff6b6b;
@@ -341,6 +480,18 @@ export default {
   }
 }
 
+/* 下拉框动画 */
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.3s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
 /* 分类栏样式 */
 .categories-bar {
   background: linear-gradient(135deg, #fff 0%, #fef7f7 50%, #fff 100%);
@@ -352,7 +503,7 @@ export default {
   box-shadow: 0 2px 8px rgba(255, 107, 107, 0.05);
 
   .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
   }

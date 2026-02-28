@@ -170,10 +170,8 @@ import { ref, reactive, onMounted, nextTick } from 'vue'
 import { ElMessage, FormInstance, FormItemRule } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getUserInfo, addUserApi, updateUserApi, updatePWD,selectUserRole,addUserRole } from '../../api/user'
-import {getRoleList} from '../../api/role'
 import { aesCbcEncrypt } from '../../utils/crypto'
 import dayjs from 'dayjs'
-import { el } from 'element-plus/es/locales.mjs'
 
 // 搜索表单
 const searchForm = reactive({

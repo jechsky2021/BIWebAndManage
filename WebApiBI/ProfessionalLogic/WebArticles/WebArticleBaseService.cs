@@ -31,5 +31,11 @@ namespace ProfessionalLogic.WebArticles
             return Operation(result);
         }
 
+        public DataResult getSearchArticles(DTO_KeyWords model)
+        {
+            DataSet ds = DataHandler.QueryDataSet<DTO_KeyWords>(model, ProcName.proc_searchArticle, OpBase.beautyindustry);
+            return SelectByPage<DTO_Article>(ds);
+        }
+
     }
 }

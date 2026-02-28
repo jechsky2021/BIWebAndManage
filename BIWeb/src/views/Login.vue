@@ -23,94 +23,98 @@
         </div>
 
         <!-- 登录表单 -->
-        <form v-if="activeTab === 'login'" @submit.prevent="handleLogin">
-          <div class="form-group">
-            <label for="login-phone">手机号</label>
-            <input 
-              type="tel" 
-              id="login-phone" 
+        <el-form 
+          v-if="activeTab === 'login'" 
+          :model="loginForm" 
+          :rules="loginRules" 
+          ref="loginFormRef"
+          label-width="0"
+          @submit.prevent="handleLogin"
+        >
+          <el-form-item prop="phone">
+            <el-input 
               v-model="loginForm.phone"
               placeholder="请输入手机号"
-              required
+              prefix-icon="Phone"
+              size="large"
             />
-          </div>
+          </el-form-item>
           
-          <div class="form-group">
-            <label for="login-password">密码</label>
-            <input 
-              type="password" 
-              id="login-password" 
+          <el-form-item prop="password">
+            <el-input 
               v-model="loginForm.password"
+              type="password"
               placeholder="请输入密码"
-              required
+              prefix-icon="Lock"
+              show-password
+              size="large"
             />
-          </div>
+          </el-form-item>
 
           <div class="form-options">
-            <label class="remember-me">
-              <input type="checkbox" v-model="loginForm.remember" />
-              记住登录状态
-            </label>
             <a href="#" class="forgot-password">忘记密码？</a>
           </div>
 
-          <button type="submit" class="submit-btn">登录</button>
-        </form>
+          <el-button 
+            type="primary" 
+            @click="handleLogin"
+            :loading="loading"
+            size="large"
+            class="submit-btn"
+            round
+          >
+            登录
+          </el-button>
+        </el-form>
 
         <!-- 注册表单 -->
-        <form v-else-if="activeTab === 'register'" @submit.prevent="handleRegister">
-          <div class="form-group">
-            <label for="register-phone">手机号</label>
-            <input 
-              type="tel" 
-              id="register-phone" 
+        <el-form 
+          v-else-if="activeTab === 'register'" 
+          :model="registerForm" 
+          :rules="registerRules" 
+          ref="registerFormRef"
+          label-width="0"
+          @submit.prevent="handleRegister"
+        >
+          <el-form-item prop="phone">
+            <el-input 
               v-model="registerForm.phone"
               placeholder="请输入手机号"
-              required
+              prefix-icon="Phone"
+              size="large"
             />
-          </div>
+          </el-form-item>
 
-          <div class="form-group">
-            <label for="register-code">验证码</label>
-            <div class="code-input">
-              <input 
-                type="text" 
-                id="register-code" 
-                v-model="registerForm.code"
-                placeholder="请输入验证码"
-                required
-              />
-              <button 
-                type="button" 
-                class="get-code-btn"
-                :disabled="countdown > 0"
-                @click="getCode"
-              >
-                {{ countdown > 0 ? `${countdown}秒后重试` : '获取验证码' }}
-              </button>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="register-password">设置密码</label>
-            <input 
-              type="password" 
-              id="register-password" 
+          <el-form-item prop="password">
+            <el-input 
               v-model="registerForm.password"
-              placeholder="密码长度为6-20位，包含字母和数字"
-              required
+              type="password"
+              placeholder="密码长度为6-20位"
+              prefix-icon="Lock"
+              show-password
+              size="large"
             />
-          </div>
+          </el-form-item>
 
-          <div class="form-agreement">
-            <label>
-              <input type="checkbox" v-model="registerForm.agreement" required />
-              我已阅读并同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a>
-            </label>
-          </div>
+          <el-form-item prop="agreement">
+            <div class="form-agreement">
+              <el-checkbox v-model="registerForm.agreement">
+                我已阅读并同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a>
+              </el-checkbox>
+            </div>
+          </el-form-item>
 
-          <button type="submit" class="submit-btn">注册</button>
-        </form>
+          <el-button 
+            type="primary" 
+            @click="handleRegister"
+            :loading="loading"
+            size="large"
+            class="submit-btn"
+            round
+          >
+            注册
+          </el-button>
+        </el-form>
 
         <div class="login-other">
           <div class="other-title">
@@ -135,74 +139,163 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-
-interface LoginForm {
-  phone: string;
-  password: string;
-  remember: boolean;
-}
-
-interface RegisterForm {
-  phone: string;
-  code: string;
-  password: string;
-  agreement: boolean;
-}
+import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
+import { aesEncrypt, aesCbcEncrypt } from '../utils/crypto'
+import { register, login } from '../api/user'
 
 const router = useRouter();
 const activeTab = ref('login');
-const countdown = ref(0);
-const loginForm = ref<LoginForm>({
+const registerFormRef = ref<FormInstance>();
+const loginFormRef = ref<FormInstance>();
+const loading = ref(false);
+
+// const countdown = ref(0);
+const loginForm = reactive({
   phone: '',
-  password: '',
-  remember: false
+  password: ''
 });
-const registerForm = ref<RegisterForm>({
+
+// 登录表单验证规则
+const loginRules = reactive<FormRules>({
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
+  ]
+});
+
+const registerForm = reactive({
   phone: '',
   code: '',
   password: '',
   agreement: false
 });
 
-const handleLogin = () => {
-  // 模拟登录逻辑
-  console.log('登录信息:', loginForm.value);
-  alert('登录成功！');
-  router.push('/');
-};
-
-const handleRegister = () => {
-  // 模拟注册逻辑
-  console.log('注册信息:', registerForm.value);
-  alert('注册成功！');
-  activeTab.value = 'login';
-};
-
-const getCode = () => {
-  if (!validatePhone(registerForm.value.phone)) {
-    alert('请输入正确的手机号');
-    return;
-  }
-  
-  // 模拟发送验证码
-  console.log('发送验证码到:', registerForm.value.phone);
-  
-  // 开始倒计时
-  countdown.value = 60;
-  const timer = setInterval(() => {
-    countdown.value--;
-    if (countdown.value <= 0) {
-      clearInterval(timer);
+// 注册表单验证规则
+const registerRules = reactive<FormRules>({
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
+  ],
+  agreement: [
+    { 
+      validator: (_rule, value, callback) => {
+        if (!value) {
+          callback(new Error('请同意用户协议和隐私政策'))
+        } else {
+          callback()
+        }
+      }, 
+      trigger: 'change' 
     }
-  }, 1000);
+  ]
+});
+
+const handleLogin = async () => {
+  if (!loginFormRef.value) return
+  try {
+    await loginFormRef.value.validate()
+    loading.value = true
+    
+    // 使用CBC模式加密密码
+    const encryptedPassword = aesCbcEncrypt(loginForm.password)
+
+    const params = {
+      uPhone: loginForm.phone,
+      uPasswords: encryptedPassword
+    }
+    
+    // 调用登录API
+    console.log("登录参数:", params)
+    const response = await login(params)
+    console.log("登录响应:", response)
+    
+    if (response.sign === "1") {
+      ElMessage.success('登录成功！')
+      // 保存登录状态到本地存储
+      localStorage.setItem('token', response.data?.token || '')
+      localStorage.setItem('userInfo', JSON.stringify(response.data?.userInfo || {}))
+      loading.value = false
+      router.push('/user-center')
+    } else {
+      ElMessage.error(response.msg || '登录失败，请检查账号密码')
+      loading.value = false
+    }
+  } catch (error) {
+    console.error('登录失败:', error)
+    ElMessage.error('登录失败，请稍后重试')
+    loading.value = false
+  }
 };
 
-const validatePhone = (phone: string): boolean => {
-  const phoneRegex = /^1[3-9]\d{9}$/;
-  return phoneRegex.test(phone);
+const handleRegister = async () => {
+  if (!registerFormRef.value) return
+  try {
+    await registerFormRef.value.validate()
+    loading.value = true
+    
+    // 使用封装的AES-ECB加密函数加密密码
+    const encryptedPassword = aesCbcEncrypt(registerForm.password)
+    
+    // 准备注册请求参数
+    const params = {
+      uPhone: registerForm.phone,
+      uPasswords: encryptedPassword // 发送加密后的密码
+    }
+
+    // 调用注册API
+    console.log("注册参数:", params)
+    const response = await register(params);
+    console.log("注册响应:", response)
+    
+    if(response.sign === "1"){
+      ElMessage.success('注册成功！')
+      activeTab.value = 'login';
+    }else{
+      ElMessage.error(response.msg || '注册失败，请稍后重试')
+    }
+    loading.value = false
+  } catch (error: any) {
+    console.error('注册失败:', error)
+    ElMessage.error(error.message || '注册失败，请稍后重试')
+    loading.value = false
+  }
 };
+
+// const getCode = () => {
+//   if (!validatePhone(registerForm.value.phone)) {
+//     alert('请输入正确的手机号');
+//     return;
+//   }
+  
+//   // 模拟发送验证码
+//   console.log('发送验证码到:', registerForm.value.phone);
+  
+//   // 开始倒计时
+//   countdown.value = 60;
+//   const timer = setInterval(() => {
+//     countdown.value--;
+//     if (countdown.value <= 0) {
+//       clearInterval(timer);
+//     }
+//   }, 1000);
+// };
+
+// const validatePhone = (phone: string): boolean => {
+//   const phoneRegex = /^1[3-9]\d{9}$/;
+//   return phoneRegex.test(phone);
+// };
+
 </script>
 
 <style lang="scss" scoped>
@@ -418,7 +511,19 @@ const validatePhone = (phone: string): boolean => {
     }
   }
 
-  .login-other {
+  :deep(.el-input__wrapper) {
+  box-shadow: 0 0 0 1px #dcdfe6 inset;
+  
+  &.is-focus {
+    box-shadow: 0 0 0 1px #ff6b6b inset;
+  }
+}
+
+:deep(.el-input__inner:focus) {
+  box-shadow: none;
+}
+
+.login-other {
     margin-top: 32px;
 
     .other-title {

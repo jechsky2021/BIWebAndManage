@@ -30,8 +30,12 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {
-    console.log("respose:",response)
-    if (response.code === 401) {
+     
+     return response.data
+  },
+  (error) => {
+
+    if (error.response &&error.response.status === 401) {
       ElMessage({ message: '会话过期，请重新登录', type: 'warning' })
       const userStore = useUserStore()
       userStore.logout()
@@ -39,9 +43,6 @@ service.interceptors.response.use(
       return Promise.reject(new Error('会话过期'))
     }
 
-     return response.data
-  },
-  (error) => {
     ElMessage({ message: error.message || '网络错误', type: 'error' })
     return Promise.reject(error)
   }
@@ -83,6 +84,13 @@ fileService.interceptors.response.use(
      return response
   },
   (error) => {
+    if (error.response &&error.response.status === 401) {
+      ElMessage({ message: '会话过期，请重新登录', type: 'warning' })
+      const userStore = useUserStore()
+      userStore.logout()
+      window.location.href = '/login'
+      return Promise.reject(new Error('会话过期'))
+    }
     ElMessage({ message: error.message || '网络错误', type: 'error' })
     return Promise.reject(error)
   }

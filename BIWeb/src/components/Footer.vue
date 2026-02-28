@@ -29,7 +29,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2025 美业资讯. 保留所有权利.</p>
+        <p>&copy; 2026 美业资讯. 保留所有权利.</p>
       </div>
     </div>
   </footer>

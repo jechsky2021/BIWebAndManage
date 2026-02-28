@@ -5,66 +5,71 @@
     <!-- 文章详情内容 -->
     <main class="main-content">
       <div class="container">
-        <div class="article-wrapper">
-          <!-- 文章头部信息 -->
-          <div class="article-header">
-            <h1 class="article-title">{{ articleDetail.title }}</h1>
-            <div class="article-meta">
-              <span class="publish-time">发布时间：{{ formatDate(articleDetail.createTime) }}</span>
-              <span class="read-count">阅读：{{ articleDetail.pageViews }}</span>
-            </div>
-          </div>
+        <div class="content-wrapper">
+          <div class="main-column">
+            <div class="article-wrapper">
+              <!-- 文章头部信息 -->
+              <div class="article-header">
+                <h1 class="article-title">{{ articleDetail.title }}</h1>
+                <div class="article-meta">
+                  <span class="publish-time">发布时间：{{ formatDate(articleDetail.createTime) }}</span>
+                  <span class="read-count">阅读：{{ articleDetail.pageViews }}</span>
+                </div>
+              </div>
 
-          <!-- 文章封面图 -->
-          <div class="article-cover">
-            <img src="../assets/images/carousel-banner.svg" alt="{{ articleDetail.title }}" class="cover-image" />
-          </div>
+              <!-- 文章封面图 -->
+              <div class="article-cover">
+                <img src="../assets/images/carousel-banner.svg" alt="{{ articleDetail.title }}" class="cover-image" />
+              </div>
 
-          <!-- 文章内容 -->
-          <div class="article-content">
-            <div v-if="loading">加载中...</div>
-            <div v-else v-html="articleDetail.content"></div>
-          </div>
+              <!-- 文章内容 -->
+              <div class="article-content">
+                <div v-if="loading">加载中...</div>
+                <div v-else v-html="articleDetail.content"></div>
+              </div>
 
-          <!-- 分享和点赞 -->
-          <div class="article-actions">
-            <button class="like-btn">
-              <span class="like-icon">👍</span>
-              <span class="like-count">567</span>
-            </button>
-            <div class="share-btn">
-              <span>分享</span>
-              <div class="share-options">
-                <span class="share-item">微信</span>
-                <span class="share-item">微博</span>
-                <span class="share-item">QQ</span>
+              <!-- 分享和点赞 -->
+              <div class="article-actions">
+                <button class="like-btn">
+                  <span class="like-icon">👍</span>
+                  <span class="like-count">567</span>
+                </button>
+                <div class="share-btn">
+                  <span>分享</span>
+                  <div class="share-options">
+                    <span class="share-item">微信</span>
+                    <span class="share-item">微博</span>
+                    <span class="share-item">QQ</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 相关推荐 -->
+              <div class="related-articles">
+                <h3>相关推荐</h3>
+                <div v-if="loadingRelated" class="loading-state">加载中...</div>
+                <div v-else-if="relatedArticles.length > 0" class="related-list">
+                  <router-link 
+                    v-for="article in relatedArticles" 
+                    :key="article.id" 
+                    :to="'/article/' + article.id" 
+                    class="related-item"
+                    target="_blank"
+                  >
+                    <div class="article-icon" :style="{ backgroundColor: colors[article.id % colors.length] }">{{ article.title.charAt(0) }}</div>
+                    <div class="article-info">
+                      <h4>{{ article.title }}</h4>
+                      <p>{{ article.introduce }}</p>
+                    </div>
+                  </router-link>
+                </div>
+                <div v-else class="empty-state">暂无相关推荐</div>
               </div>
             </div>
           </div>
-
-          <!-- 相关推荐 -->
-          <div class="related-articles">
-            <h3>相关推荐</h3>
-            <div class="related-list">
-              <div class="related-item">
-                <router-link to="/article/1">
-                  <h4>如何护理染后发色</h4>
-                  <p>专业的染后护理方法，让你的发色更持久</p>
-                </router-link>
-              </div>
-              <div class="related-item">
-                <router-link to="/article/2">
-                  <h4>2025秋季发色预测</h4>
-                  <p>提前了解下一季的发色趋势</p>
-                </router-link>
-              </div>
-              <div class="related-item">
-                <router-link to="/article/3">
-                  <h4>不同脸型适合的发色</h4>
-                  <p>根据脸型选择最适合你的发色</p>
-                </router-link>
-              </div>
-            </div>
+          
+          <div class="sidebar">
+            <RankingsModule @tabChange="handleTabChange" />
           </div>
         </div>
       </div>
@@ -76,7 +81,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { getArticlesById } from '../api/articles';
+import { getArticlesById, getArticlesByPage } from '../api/articles';
+import RankingsModule from '../components/RankingsModule.vue';
 import dayjs from 'dayjs';
 
 
@@ -92,10 +98,12 @@ const articleDetail = ref<any>({
   content: '',
   statuss: 0,
   pageViews: 0,
-  createTime: '',
-  relatedArticles: []
+  createTime: ''
 });
+const relatedArticles = ref<any[]>([]);
 const loading = ref(false);
+const loadingRelated = ref(false);
+const colors = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#1a535c', '#f7b801', '#7209b7', '#4cc9f0', '#f72585'];
 
 const fetchArticleDetail = async () => {
   try {
@@ -119,10 +127,42 @@ const formatDate = (date: string) => {
   return dayjs(date).format('YYYY-MM-DD HH:mm:ss');
 };
 
+const handleTabChange = (tab: string) => {
+  console.log('Tab changed to:', tab);
+  // 可以在这里添加额外的逻辑，比如统计用户行为等
+};
+
+const fetchRelatedArticles = async () => {
+  try {
+    loadingRelated.value = true;
+    const data = await getArticlesByPage({
+      articleType: -1,
+      statuss: 1,
+      isRecommend: 1,
+      pageNumber: 1,
+      pageSize: 3
+    });
+    console.log('相关推荐:', data);
+    if (data.data && data.data.lists) {
+      relatedArticles.value = data.data.lists.map((item: any) => ({
+        id: item.id,
+        title: item.title || '暂无标题',
+        introduce: item.introduce || item.content?.substring(0, 100) || '暂无简介'
+      }));
+    }
+  } catch (error) {
+    console.error('获取相关推荐失败:', error);
+  } finally {
+    loadingRelated.value = false;
+  }
+};
+
 onMounted(() => {
   // 加载文章数据
   console.log('加载文章ID:', articleId.value);
   fetchArticleDetail();
+  // 加载相关推荐
+  fetchRelatedArticles();
 });
 </script>
 
@@ -138,14 +178,30 @@ onMounted(() => {
   }
 
   .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
   }
 
+  .content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 30px;
+  }
+
+  .main-column {
+    flex: 1;
+  }
+
+  .sidebar {
+    width: 400px;
+    position: sticky;
+    top: 30px;
+    align-self: start;
+  }
+
   .article-wrapper {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 100%;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -379,6 +435,16 @@ onMounted(() => {
       font-weight: bold;
       color: #333;
       margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .loading-state,
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+      font-size: 14px;
     }
 
     .related-list {
@@ -387,32 +453,54 @@ onMounted(() => {
       gap: 16px;
 
       .related-item {
-        border: 1px solid #f0f0f0;
+        display: flex;
+        gap: 16px;
+        background-color: #fff;
         border-radius: 8px;
-        overflow: hidden;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
+        text-decoration: none;
 
         &:hover {
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
           transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
         }
 
-        a {
-          display: block;
-          padding: 16px;
-          text-decoration: none;
+        .article-icon {
+          width: 60px;
+          height: 60px;
+          border-radius: 8px;
+          background-color: #ff6b6b;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+          font-weight: bold;
+          color: white;
+          flex-shrink: 0;
+        }
+
+        .article-info {
+          flex: 1;
 
           h4 {
             font-size: 16px;
             font-weight: 600;
             color: #333;
             margin-bottom: 8px;
+            line-height: 1.4;
           }
 
           p {
             font-size: 14px;
             color: #666;
             line-height: 1.6;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
           }
         }
       }
@@ -455,6 +543,18 @@ onMounted(() => {
           gap: 12px;
         }
       }
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .content-wrapper {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .sidebar {
+      width: 100%;
+      position: static;
     }
   }
 

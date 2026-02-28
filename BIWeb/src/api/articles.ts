@@ -10,3 +10,8 @@ export async function getArticlesById(params: any): Promise<any> {
   return axios.post('/WebArticle/GetDetailById', params);
 }
 
+// 搜索网站
+export async function getSearchArticles(params: any): Promise<any> {
+  return axios.post('/WebArticle/GetSearchArticles', params);
+}
+

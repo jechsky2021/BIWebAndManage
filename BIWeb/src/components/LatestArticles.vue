@@ -7,6 +7,7 @@
         :key="article.id" 
         :to="'/article/' + article.id"
         class="article-item"
+        target="_blank"
       >
         <div class="article-header">
           <div 
@@ -70,7 +71,7 @@ export default {
 
   .articles-list {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 16px;
   }
 
@@ -148,7 +149,7 @@ export default {
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .articles-list {
       grid-template-columns: 1fr;
       gap: 12px;
@@ -183,10 +184,10 @@ export default {
     }
   }
   
-  @media (min-width: 480px) and (max-width: 767px) {
+  @media (min-width: 641px) {
     .articles-list {
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
     }
   }
 }

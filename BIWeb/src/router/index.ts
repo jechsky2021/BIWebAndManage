@@ -17,6 +17,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/Knowledge.vue')
   },
   {
+    path: '/articles',
+    name: 'ArticleList',
+    component: () => import('../views/ArticleList.vue')
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('../views/Login.vue')
@@ -32,6 +37,11 @@ const routes: RouteRecordRaw[] = [
     name: 'CategoryPage',
     component: () => import('../views/CategoryPage.vue'),
     props: true
+  },
+  {
+    path: '/user-center',
+    name: 'UserCenter',
+    component: () => import('../views/User/UserCenter.vue')
   }
 ]
 
