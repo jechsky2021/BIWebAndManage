@@ -1,5 +1,6 @@
 ﻿using DTO;
 using DTO.DTOUser;
+using DTO.DTOWebUser;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -44,6 +45,7 @@ namespace WebApiBI.Controllers
         {
             public string Token { get; set; } = string.Empty;
             public DTO_User UserInfo{ get; set; }=new DTO_User();
+            public DTO_WebUser WebUserInfo { get; set; } = new DTO_WebUser();
         }
 
         public class RefreshRequest
@@ -112,6 +114,50 @@ namespace WebApiBI.Controllers
             }
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult WebLogin([FromBody] DTO_WebUser req)
+        {
+            _logger.LogInformation("Login attempt for user: {Username}", req.uName);
+            DataResult ds = ValidateWebCredentials(req);
+
+            DTO_WebUser user = JsonConvert.DeserializeObject<List<DTO_WebUser>>(ds.data.ToString() ?? "")?.FirstOrDefault() ?? new DTO_WebUser();
+
+            if (user.id > 0)
+            {
+                var (tokenString, expires) = GenerateJwtToken(user.id);
+
+                var refreshToken = GenerateRefreshTokenString();
+                var refreshExpireDays = int.TryParse(_config["Jwt:RefreshExpireDays"], out var d) ? d : 7;
+                SaveRefreshToken(refreshToken, req.id, DateTime.UtcNow.AddDays(refreshExpireDays));
+
+                //return Ok(new LoginResponse
+                //{
+                //    Token = tokenString,
+                //    Expires = expires,
+                //    RefreshToken = refreshToken
+                //});
+                DataResult loginResponse = new DataResult
+                {
+                    sign = ds.sign,
+                    data = new LoginResponse() { Token = tokenString, WebUserInfo = user },
+                    msg = ds.msg
+                };
+                return Json(loginResponse);
+            }
+            else
+            {
+                DataResult loginResponse = new DataResult
+                {
+                    sign = "0",
+                    data = "",
+                    msg = "没有此用户！"
+                };
+                return Json(loginResponse);
+            }
+        }
+
+
         // POST: api/auth/refresh
         [HttpPost]
         [AllowAnonymous]
@@ -173,6 +219,13 @@ namespace WebApiBI.Controllers
             DataResult ds = userBaseService.login(dTO_User);
             return ds;
         }
+
+        private DataResult ValidateWebCredentials(DTO_WebUser dTO_User)
+        {
+            DataResult ds = webUserBaseService.webLogin(dTO_User);
+            return ds;
+        }
+
 
         private (string tokenString, DateTime expires) GenerateJwtToken(long id)
         {

@@ -222,8 +222,6 @@ CREATE TABLE `user` (
   `uName` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `uPasswords` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `uPhone` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `uAvatar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `uOccupation` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
   `updateTime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -236,7 +234,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'admin','CinA5MJWDvBTvOJSvluE4g==','13100000000',NULL,NULL,'2026-02-28 08:59:29',NULL),(2,'test','1jdzWuniG6UMtoa3T6uNLA==','13100000000',NULL,NULL,'2026-02-28 09:00:06',NULL),(3,'000','nSSXzuhG4WilyjUHHaeaWg==','13100000000','/fileManageEndPoint/downLoadFromOSS?fileName=WebSiteAvatars/1772239254420_avatar.jpg','00','2026-02-28 09:00:17',NULL);
+INSERT INTO `user` VALUES (1,'admin','CinA5MJWDvBTvOJSvluE4g==','13100000000','2026-02-28 08:59:29',NULL),(2,'test','1jdzWuniG6UMtoa3T6uNLA==','13100000000','2026-02-28 09:00:06',NULL),(3,'000','nSSXzuhG4WilyjUHHaeaWg==','13100000000','2026-02-28 09:00:17',NULL);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -264,6 +262,36 @@ LOCK TABLES `user_role` WRITE;
 INSERT INTO `user_role` VALUES (7,1,1),(8,1,2),(9,2,2);
 /*!40000 ALTER TABLE `user_role` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `web_user`
+--
+
+DROP TABLE IF EXISTS `web_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `web_user` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `uName` varchar(100) DEFAULT NULL,
+  `uPasswords` varchar(100) DEFAULT NULL,
+  `uPhone` varchar(45) DEFAULT NULL,
+  `uAvatar` varchar(255) DEFAULT NULL,
+  `uOccupation` varchar(45) DEFAULT NULL,
+  `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updateTime` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `web_user`
+--
+
+LOCK TABLES `web_user` WRITE;
+/*!40000 ALTER TABLE `web_user` DISABLE KEYS */;
+INSERT INTO `web_user` VALUES (1,'000','nSSXzuhG4WilyjUHHaeaWg==','13100000000','/fileManageEndPoint/downLoadFromOSS?fileName=WebSiteAvatars/1772243449626_avatar.jpg','00','2026-02-28 09:35:16',NULL);
+/*!40000 ALTER TABLE `web_user` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -274,4 +302,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-28  9:00:58
+-- Dump completed on 2026-02-28  9:51:59

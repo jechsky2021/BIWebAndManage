@@ -2,12 +2,12 @@ import axios from '../utils/axios'
 
 // 注册API
 export const register = (params: any): Promise<any> => {
-  return axios.post('/WebUser/AddUser', params)
+  return axios.post('/WebUser/AddWebUser', params)
 }
 
 // 登录API
 export const login = (params: any): Promise<any> => {
-  return axios.post('/auth/login', params)
+  return axios.post('/auth/WebLogin', params)
 }
 
 // 修改密码

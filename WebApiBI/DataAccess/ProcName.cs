@@ -19,10 +19,18 @@ namespace DataAccess
         public static readonly string proc_updateUserPWD = "proc_updateUserPWD";
         public static readonly string proc_selectRolesByUid = "proc_selectRolesByUid";
         public static readonly string proc_deleteUserRole = "proc_deleteUserRole";
+        public static readonly string proc_selectUserById = "proc_selectUserById";
 
+        #endregion
+
+        #region webusers
+
+        public static readonly string proc_insertWebUser = "proc_insertWebUser";
+        public static readonly string proc_loginWeb = "proc_loginWeb";
+        public static readonly string proc_selectWebUserById = "proc_selectWebUserById";
         public static readonly string proc_updateWebUser = "proc_updateWebUser";
         public static readonly string proc_updateWebUserAvatar = "proc_updateWebUserAvatar";
-        public static readonly string proc_selectUserById = "proc_selectUserById";
+        public static readonly string proc_updateWebUserPWD = "proc_updateWebUserPWD";
 
         #endregion
 

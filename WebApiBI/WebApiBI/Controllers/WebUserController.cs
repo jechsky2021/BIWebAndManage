@@ -1,6 +1,7 @@
 ﻿using DTO;
 using DTO.DTORole;
 using DTO.DTOUser;
+using DTO.DTOWebUser;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -14,15 +15,15 @@ namespace WebApiBI.Controllers
     {
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult AddUser(DTO_User model)
+        public IActionResult AddWebUser(DTO_WebUser model)
         {
-            DataResult ds = userBaseService.addUser(model);
+            DataResult ds = webUserBaseService.addWebUser(model);
             ds.data = ds.data?.ToString() ?? "0";
             return Json(ds);
         }
 
         [HttpPost]
-        public IActionResult UpdateWebUser(DTO_User model)
+        public IActionResult UpdateWebUser(DTO_WebUser model)
         {
             DataResult ds = webUserBaseService.updateWebUser(model);
             ds.data = ds.data?.ToString() ?? "0";
@@ -30,7 +31,7 @@ namespace WebApiBI.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateWebUserAvatar(DTO_User model)
+        public IActionResult UpdateWebUserAvatar(DTO_WebUser model)
         {
             DataResult ds = webUserBaseService.updateWebUserAvatar(model);
             ds.data = ds.data?.ToString() ?? "0";
@@ -38,7 +39,7 @@ namespace WebApiBI.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateWebUserPWD(DTO_User model)
+        public IActionResult UpdateWebUserPWD(DTO_WebUser model)
         {
             DataResult ds = webUserBaseService.updateWebUserPWD(model);
             ds.data = ds.data?.ToString() ?? "0";
@@ -49,7 +50,7 @@ namespace WebApiBI.Controllers
         public IActionResult GetUserById(DTO_Id model)
         {
             DataResult ds = webUserBaseService.getUserById(model);
-            ds.data = JsonConvert.DeserializeObject<List<DTO_User>>(ds.data.ToString() ?? "") ?? new List<DTO_User>();
+            ds.data = JsonConvert.DeserializeObject<List<DTO_WebUser>>(ds.data.ToString() ?? "") ?? new List<DTO_WebUser>();
             return Json(ds);
         }
 

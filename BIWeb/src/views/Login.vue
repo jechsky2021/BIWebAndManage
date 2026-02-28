@@ -224,8 +224,10 @@ const handleLogin = async () => {
       ElMessage.success('登录成功！')
       // 保存登录状态到本地存储
       localStorage.setItem('token', response.data?.token || '')
-      localStorage.setItem('userInfo', JSON.stringify(response.data?.userInfo || {}))
+      localStorage.setItem('userInfo', JSON.stringify(response.data?.webUserInfo || {}))
       loading.value = false
+      // 触发 localStorage 变化事件，通知 NavBar 更新
+      window.dispatchEvent(new Event('storage'))
       router.push('/user-center')
     } else {
       ElMessage.error(response.msg || '登录失败，请检查账号密码')

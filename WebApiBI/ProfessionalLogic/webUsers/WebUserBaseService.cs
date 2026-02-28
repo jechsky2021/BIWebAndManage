@@ -2,6 +2,7 @@
 using DTO;
 using DTO.DTORole;
 using DTO.DTOUser;
+using DTO.DTOWebUser;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ProfessionalLogic.users;
@@ -15,32 +16,39 @@ namespace ProfessionalLogic.webUsers
         {
         }
 
-        public DataResult addWebUser(DTO_User model)
+        public DataResult addWebUser(DTO_WebUser model)
         {
-            DataSet ds = DataHandler.QueryDataSet<DTO_User>(model, ProcName.proc_insertUser, OpBase.beautyindustry);
+            DataSet ds = DataHandler.QueryDataSet<DTO_WebUser>(model, ProcName.proc_insertWebUser, OpBase.beautyindustry);
             
             return Select(ds);
         }
 
-        public DataResult updateWebUser(DTO_User model)
+        public DataResult webLogin(DTO_WebUser model)
         {
-            int? result = DataHandler.OperateObject<DTO_User>(model, ProcName.proc_updateWebUser, OpBase.beautyindustry);
+            DataSet ds = DataHandler.QueryDataSet<DTO_WebUser>(model, ProcName.proc_loginWeb, OpBase.beautyindustry);
+
+            return Select(ds);
+        }
+
+        public DataResult updateWebUser(DTO_WebUser model)
+        {
+            int? result = DataHandler.OperateObject<DTO_WebUser>(model, ProcName.proc_updateWebUser, OpBase.beautyindustry);
             return Operation(result);
         }
 
-        public DataResult updateWebUserAvatar(DTO_User model)
+        public DataResult updateWebUserAvatar(DTO_WebUser model)
         {
-            int? result = DataHandler.OperateObject<DTO_User>(model, ProcName.proc_updateWebUserAvatar, OpBase.beautyindustry);
+            int? result = DataHandler.OperateObject<DTO_WebUser>(model, ProcName.proc_updateWebUserAvatar, OpBase.beautyindustry);
             return Operation(result);
         }
 
-        public DataResult updateWebUserPWD(DTO_User model)
+        public DataResult updateWebUserPWD(DTO_WebUser model)
         {
             DTO_Id dTO_Id = new DTO_Id() { id = model.id };
-            DataSet ds = DataHandler.QueryDataSet<DTO_Id>(dTO_Id, ProcName.proc_selectUserById, OpBase.beautyindustry);
+            DataSet ds = DataHandler.QueryDataSet<DTO_Id>(dTO_Id, ProcName.proc_selectWebUserById, OpBase.beautyindustry);
             if(model.oldUPasswords == ds.Tables[0].Rows[0]["uPasswords"].ToString())
             {
-                int? result = DataHandler.OperateObject<DTO_User>(model, ProcName.proc_updateUserPWD, OpBase.beautyindustry);
+                int? result = DataHandler.OperateObject<DTO_WebUser>(model, ProcName.proc_updateWebUserPWD, OpBase.beautyindustry);
                 return Operation(result);
             }
             else
@@ -51,7 +59,7 @@ namespace ProfessionalLogic.webUsers
 
         public DataResult getUserById(DTO_Id model)
         {
-            DataSet ds = DataHandler.QueryDataSet<DTO_Id>(model, ProcName.proc_selectUserById, OpBase.beautyindustry);
+            DataSet ds = DataHandler.QueryDataSet<DTO_Id>(model, ProcName.proc_selectWebUserById, OpBase.beautyindustry);
             return Select(ds);
         }
 

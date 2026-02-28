@@ -121,6 +121,7 @@ export default {
       searchQuery: '',
       isSearchFocused: false,
       showUserDropdown: false,
+      isUserLoggedIn: false,
       // 分类数据
       categories: [],
       // 模拟搜索建议数据
@@ -139,6 +140,15 @@ export default {
   created() {
     // 加载分类数据
     this.loadCategories();
+    // 检查登录状态
+    this.checkLoginStatus();
+  },
+  mounted() {
+    // 监听登录状态变化
+    window.addEventListener('storage', this.checkLoginStatus);
+  },
+  beforeUnmount() {
+    window.removeEventListener('storage', this.checkLoginStatus);
   },
   computed: {
     currentRoute() {
@@ -156,13 +166,14 @@ export default {
       return this.isSearchFocused && this.searchQuery.trim() && this.filteredSuggestions.length > 0;
     },
     isLoggedIn() {
-      return !!localStorage.getItem('token');
+      return this.isUserLoggedIn;
     },
     userPhone() {
       const userInfo = localStorage.getItem('userInfo');
       if (userInfo) {
         const parsedInfo = JSON.parse(userInfo);
-        return parsedInfo.uPhone || '';
+        // 尝试从不同路径获取手机号
+        return parsedInfo.uPhone || parsedInfo.phone || '';
       }
       return '';
     }
@@ -211,9 +222,17 @@ export default {
     closeUserDropdown() {
       this.showUserDropdown = false;
     },
+    checkLoginStatus() {
+      this.isUserLoggedIn = !!localStorage.getItem('token');
+      // 调试日志
+      console.log('登录状态检查:', this.isUserLoggedIn);
+      console.log('用户信息:', localStorage.getItem('userInfo'));
+    },
     handleLogout() {
       this.showUserDropdown = false;
-      localStorage.clear()
+      localStorage.removeItem('token');
+      localStorage.removeItem('userInfo');
+      this.isUserLoggedIn = false;
       this.$router.push('/login');
     }
   }
