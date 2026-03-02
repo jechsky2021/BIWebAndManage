@@ -22,7 +22,7 @@ namespace ProfessionalLogic.WebArticles
         public DataResult getWebDetailById(DTO_Id model)
         {
             DataSet ds = DataHandler.QueryDataSet<DTO_Id>(model, ProcName.proc_selectPublishArticleById, OpBase.beautyindustry);
-            return Select(ds);
+            return Select<DTO_Article>(ds);
         }
 
         public DataResult updateWebArticle(DTO_Article model)

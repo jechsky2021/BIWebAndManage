@@ -1,11 +1,7 @@
 ﻿using DataAccess;
 using DTO;
-using DTO.DTORole;
-using DTO.DTOUser;
 using DTO.DTOWebUser;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using ProfessionalLogic.users;
 using System.Data;
 
 namespace ProfessionalLogic.webUsers
@@ -18,16 +14,14 @@ namespace ProfessionalLogic.webUsers
 
         public DataResult addWebUser(DTO_WebUser model)
         {
-            DataSet ds = DataHandler.QueryDataSet<DTO_WebUser>(model, ProcName.proc_insertWebUser, OpBase.beautyindustry);
-            
-            return Select(ds);
+            int? result = DataHandler.OperateObject<DTO_WebUser>(model, ProcName.proc_insertWebUser, OpBase.beautyindustry);
+            return Operation(result);
         }
 
         public DataResult webLogin(DTO_WebUser model)
         {
             DataSet ds = DataHandler.QueryDataSet<DTO_WebUser>(model, ProcName.proc_loginWeb, OpBase.beautyindustry);
-
-            return Select(ds);
+            return Select<DTO_WebUser>(ds);
         }
 
         public DataResult updateWebUser(DTO_WebUser model)
@@ -60,9 +54,8 @@ namespace ProfessionalLogic.webUsers
         public DataResult getUserById(DTO_Id model)
         {
             DataSet ds = DataHandler.QueryDataSet<DTO_Id>(model, ProcName.proc_selectWebUserById, OpBase.beautyindustry);
-            return Select(ds);
+            return Select<DTO_WebUser>(ds);
         }
-
 
     }
 }

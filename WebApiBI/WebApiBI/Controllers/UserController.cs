@@ -21,7 +21,6 @@ namespace WebApiBI.Controllers
         public IActionResult GetRolesByUid(DTO_Id model)
         {
             DataResult ds = userBaseService.getRolesByUid(model);
-            ds.data = JsonConvert.DeserializeObject<List<DTO_Role>>(ds.data.ToString() ?? "") ?? new List<DTO_Role>();
             return Json(ds);
         }
 

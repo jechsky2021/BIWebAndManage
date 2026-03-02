@@ -10,14 +10,20 @@
             </div>
             <nav class="sidebar-nav">
               <ul>
-                <li :class="{ active: activeTab === 'profile' }" @click="activeTab = 'profile'">
+                <li :class="{ active: activeTab === 'profile' }" @click="handleTabClick('profile')">
                   <span class="nav-text">个人资料</span>
                 </li>
-                <li :class="{ active: activeTab === 'topics' }" @click="activeTab = 'topics'">
+                <li :class="{ active: activeTab === 'topics' }" @click="handleTabClick('topics')">
                   <span class="nav-text">我的话题</span>
                 </li>
-                <li :class="{ active: activeTab === 'favorites' }" @click="activeTab = 'favorites'">
-                  <span class="nav-text">我的喜欢</span>
+                <li :class="{ active: activeTab === 'questions' }" @click="handleTabClick('questions')">
+                  <span class="nav-text">我的问答</span>
+                </li>
+                <li :class="{ active: activeTab === 'favorites' }" @click="handleTabClick('favorites')">
+                  <span class="nav-text">我喜欢的话题</span>
+                </li>
+                <li :class="{ active: activeTab === 'question-likes' }" @click="handleTabClick('question-likes')">
+                  <span class="nav-text">我喜欢的问答</span>
                 </li>
               </ul>
             </nav>
@@ -98,49 +104,60 @@
             </div>
 
             <!-- 我的话题 -->
-            <div v-if="activeTab === 'topics'" class="topics-section">
-              <h3 class="section-title">我的话题</h3>
-              <div v-if="loadingTopics" class="loading-state">加载中...</div>
-              <div v-else-if="myTopics.length > 0" class="topics-list">
-                <div v-for="topic in myTopics" :key="topic.id" class="topic-item">
-                  <router-link :to="'/topic/' + topic.id" class="topic-link">
-                    <div class="topic-icon" :style="{ backgroundColor: colors[topic.id % colors.length] }">
-                      {{ topic.title?.charAt(0) || 'T' }}
-                    </div>
-                    <div class="topic-info">
-                      <h4 class="topic-title">{{ topic.title }}</h4>
-                      <p class="topic-desc">{{ topic.description || '暂无描述' }}</p>
-                      <span class="topic-time">{{ formatDate(topic.createTime) }}</span>
-                    </div>
-                  </router-link>
-                </div>
-              </div>
-              <div v-else class="empty-state">暂无话题</div>
-            </div>
+            <ContentList 
+              v-if="activeTab === 'topics'"
+              :title="'我的话题'"
+              :items="myTopics"
+              :loading="loadingTopics"
+              type="topic"
+              :empty-text="'暂无话题'"
+              :total="topicsTotal"
+              :current-page="topicsPage"
+              :page-size="topicsPageSize"
+              @page-change="handleTopicsPageChange"
+            />
 
-            <!-- 我的喜欢 -->
-            <div v-if="activeTab === 'favorites'" class="favorites-section">
-              <h3 class="section-title">我的喜欢</h3>
-              <div v-if="loadingFavorites" class="loading-state">加载中...</div>
-              <div v-else-if="myFavorites.length > 0" class="favorites-list">
-                <router-link 
-                  v-for="article in myFavorites" 
-                  :key="article.id" 
-                  :to="'/article/' + article.id" 
-                  class="favorite-item"
-                >
-                  <div class="article-icon" :style="{ backgroundColor: colors[article.id % colors.length] }">
-                    {{ article.title?.charAt(0) || 'A' }}
-                  </div>
-                  <div class="article-info">
-                    <h4 class="article-title">{{ article.title }}</h4>
-                    <p class="article-summary">{{ article.introduce || article.content?.substring(0, 100) || '暂无简介' }}</p>
-                    <span class="article-time">{{ formatDate(article.createTime) }}</span>
-                  </div>
-                </router-link>
-              </div>
-              <div v-else class="empty-state">暂无喜欢</div>
-            </div>
+            <!-- 我喜欢的话题 -->
+            <ContentList 
+              v-if="activeTab === 'favorites'"
+              :title="'我喜欢的话题'"
+              :items="myFavorites"
+              :loading="loadingFavorites"
+              type="topic-like"
+              :empty-text="'暂无喜欢'"
+              :total="favoritesTotal"
+              :current-page="favoritesPage"
+              :page-size="favoritesPageSize"
+              @page-change="handleFavoritesPageChange"
+            />
+
+            <!-- 我的问答 -->
+            <ContentList 
+              v-if="activeTab === 'questions'"
+              :title="'我的问答'"
+              :items="myQuestions"
+              :loading="loadingQuestions"
+              type="question"
+              :empty-text="'暂无问答'"
+              :total="questionsTotal"
+              :current-page="questionsPage"
+              :page-size="questionsPageSize"
+              @page-change="handleQuestionsPageChange"
+            />
+
+            <!-- 我喜欢的问答 -->
+            <ContentList 
+              v-if="activeTab === 'question-likes'"
+              :title="'我喜欢的问答'"
+              :items="myQuestionLikes"
+              :loading="loadingQuestionLikes"
+              type="question-like"
+              :empty-text="'暂无喜欢的问答'"
+              :total="questionLikesTotal"
+              :current-page="questionLikesPage"
+              :page-size="questionLikesPageSize"
+              @page-change="handleQuestionLikesPageChange"
+            />
           </div>
         </div>
       </div>
@@ -150,17 +167,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { aesCbcEncrypt } from '../../utils/crypto'
 import { getUserInfo, updateUserApi, updatePWD, UpdateWebUserAvatar } from '../../api/user'
 import { saveGoodsPic } from '../../api/files'
-import { pictureServerBaseUrl } from '../../utils/axios'
-import dayjs from 'dayjs';
-
-const router = useRouter();
-const colors = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#1a535c', '#f7b801', '#7209b7', '#4cc9f0', '#f72585'];
+import { getAvatarUrl } from '../../utils/helpers'
+import { getMyTopics, getMyLikes } from '../../api/topics'
+import { getMyQuestions, getMyQuestionLikes } from '../../api/questions'
+import ContentList from '../../components/ContentList.vue'
 
 const editFormRef = ref<FormInstance>();
 const passwordFormRef = ref<FormInstance>();
@@ -169,6 +184,33 @@ const passwordLoading = ref(false);
 const loadingTopics = ref(false);
 const loadingFavorites = ref(false);
 const activeTab = ref('profile');
+
+// 点击标签时加载对应数据
+const handleTabClick = (tab: string) => {
+  activeTab.value = tab;
+  switch (tab) {
+    case 'topics':
+      if (myTopics.value.length === 0) {
+        loadMyTopics();
+      }
+      break;
+    case 'questions':
+      if (myQuestions.value.length === 0) {
+        loadMyQuestions();
+      }
+      break;
+    case 'favorites':
+      if (myFavorites.value.length === 0) {
+        loadMyFavorites();
+      }
+      break;
+    case 'question-likes':
+      if (myQuestionLikes.value.length === 0) {
+        loadMyQuestionLikes();
+      }
+      break;
+  }
+};
 
 const userInfo = ref<any>({
   id: '',
@@ -192,19 +234,32 @@ const passwordForm = reactive({
 
 const myTopics = ref<any[]>([]);
 const myFavorites = ref<any[]>([]);
+const myQuestions = ref<any[]>([]);
+const myQuestionLikes = ref<any[]>([]);
+const loadingQuestions = ref(false);
+const loadingQuestionLikes = ref(false);
+
+const topicsTotal = ref(0);
+const favoritesTotal = ref(0);
+const questionsTotal = ref(0);
+const questionLikesTotal = ref(0);
+
+const topicsPage = ref(1);
+const favoritesPage = ref(1);
+const questionsPage = ref(1);
+const questionLikesPage = ref(1);
+
+const topicsPageSize = ref(2);
+const favoritesPageSize = ref(2);
+const questionsPageSize = ref(2);
+const questionLikesPageSize = ref(2);
 
 // 获取基础图片文件夹路径
 const baseImgFolder = 'WebSiteAvatars'
 
 // 计算头像完整URL
 const avatarUrl = computed(() => {
-  if (!userInfo.value.uAvatar) return ''
-  // 如果已经是完整URL，直接返回
-  if (userInfo.value.uAvatar.startsWith('http')) {
-    return userInfo.value.uAvatar
-  }
-  // 否则拼接图片服务器基础URL
-  return `${pictureServerBaseUrl}${userInfo.value.uAvatar}`
+  return getAvatarUrl(userInfo.value.uAvatar)
 })
 
 const editRules = reactive<FormRules>({
@@ -243,11 +298,6 @@ const passwordRules = reactive<FormRules>({
     }
   ]
 });
-
-const formatDate = (date: string) => {
-  if (!date) return '';
-  return dayjs(date).format('YYYY-MM-DD HH:mm:ss');
-};
 
 // 加载用户信息
 const loadUserInfo = async () => {
@@ -402,14 +452,18 @@ const handleUpdatePassword = async () => {
 const loadMyTopics = async () => {
   try {
     loadingTopics.value = true;
-    const response = await getUserInfo({
-      id: userInfo.value.id,
-      pageNumber: 1,
-      pageSize: 10
-    });
+    const params = {
+      uId: userInfo.value.id,
+      pageNumber: topicsPage.value,
+      pageSize: topicsPageSize.value
+    }
+    console.log("loadMyTopics params:",params)
+    const response = await getMyTopics(params);
+    console.log("loadMyTopics response:",response)
     
     if (response.sign === '1' && response.data) {
       myTopics.value = response.data.lists || [];
+      topicsTotal.value = response.data.total || 0;
     }
     loadingTopics.value = false;
   } catch (error) {
@@ -421,14 +475,15 @@ const loadMyTopics = async () => {
 const loadMyFavorites = async () => {
   try {
     loadingFavorites.value = true;
-    const response = await getUserInfo({
-      id: userInfo.value.id,
-      pageNumber: 1,
-      pageSize: 10
+    const response = await getMyLikes({
+      uId: userInfo.value.id,
+      pageNumber: favoritesPage.value,
+      pageSize: favoritesPageSize.value
     });
-    
+    console.log("responselikes:",response)
     if (response.sign === '1' && response.data) {
       myFavorites.value = response.data.lists || [];
+      favoritesTotal.value = response.data.total || 0;
     }
     loadingFavorites.value = false;
   } catch (error) {
@@ -437,10 +492,74 @@ const loadMyFavorites = async () => {
   }
 };
 
+const loadMyQuestions = async () => {
+  try {
+    loadingQuestions.value = true;
+    const params = {
+      uid: userInfo.value.id,
+      pageNumber: questionsPage.value,
+      pageSize: questionsPageSize.value
+    }
+    const response = await getMyQuestions(params);
+    console.log("response questions:", response)
+    if (response.sign === '1' && response.data) {
+      myQuestions.value = response.data.lists || [];
+      questionsTotal.value = response.data.total || 0;
+    }
+    loadingQuestions.value = false;
+  } catch (error) {
+    console.error('加载我的问答失败:', error);
+    loadingQuestions.value = false;
+  }
+};
+
+const loadMyQuestionLikes = async () => {
+  try {
+    loadingQuestionLikes.value = true;
+    const params = {
+      uid: userInfo.value.id,
+      pageNumber: questionLikesPage.value,
+      pageSize: questionLikesPageSize.value
+    }
+    const response = await getMyQuestionLikes(params);
+    console.log("response question likes:", response)
+    if (response.sign === '1' && response.data) {
+      myQuestionLikes.value = response.data.lists || [];
+      questionLikesTotal.value = response.data.total || 0;
+    }
+    loadingQuestionLikes.value = false;
+  } catch (error) {
+    console.error('加载我喜欢的问答失败:', error);
+    loadingQuestionLikes.value = false;
+  }
+};
+
+const handleTopicsPageChange = (page: number, size: number) => {
+  topicsPage.value = page;
+  topicsPageSize.value = size;
+  loadMyTopics();
+};
+
+const handleFavoritesPageChange = (page: number, size: number) => {
+  favoritesPage.value = page;
+  favoritesPageSize.value = size;
+  loadMyFavorites();
+};
+
+const handleQuestionsPageChange = (page: number, size: number) => {
+  questionsPage.value = page;
+  questionsPageSize.value = size;
+  loadMyQuestions();
+};
+
+const handleQuestionLikesPageChange = (page: number, size: number) => {
+  questionLikesPage.value = page;
+  questionLikesPageSize.value = size;
+  loadMyQuestionLikes();
+};
+
 onMounted(() => {
   loadUserInfo();
-  loadMyTopics();
-  loadMyFavorites();
 });
 </script>
 
@@ -630,11 +749,8 @@ onMounted(() => {
   }
 }
 
-.edit-section,
-.password-section,
-.topics-section,
-.favorites-section {
-  background-color: #fff;
+.edit-section {
+background-color: #fff;
   border-radius: 8px;
   padding: 30px;
   margin: 20px 0;
@@ -650,6 +766,8 @@ onMounted(() => {
   }
 }
 
+
+
 .loading-state,
 .empty-state {
   text-align: center;
@@ -658,75 +776,7 @@ onMounted(() => {
   font-size: 14px;
 }
 
-.topics-list,
-.favorites-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
 
-.topic-item,
-.favorite-item {
-  display: flex;
-  gap: 16px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  padding: 16px;
-  transition: all 0.3s ease;
-  text-decoration: none;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .topic-icon,
-  .article-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: bold;
-    color: white;
-    flex-shrink: 0;
-  }
-
-  .topic-info,
-  .article-info {
-    flex: 1;
-
-    .topic-title,
-    .article-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    .topic-desc,
-    .article-summary {
-      font-size: 14px;
-      color: #666;
-      line-height: 1.6;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-      margin-bottom: 8px;
-    }
-
-    .topic-time,
-    .article-time {
-      font-size: 12px;
-      color: #999;
-    }
-  }
-}
 
 // 覆盖 Element Plus 输入框聚焦样式
 :deep(.el-input__wrapper) {
@@ -765,9 +815,7 @@ onMounted(() => {
   }
 
   .edit-section,
-  .password-section,
-  .topics-section,
-  .favorites-section {
+  .password-section {
     padding: 20px;
   }
 }

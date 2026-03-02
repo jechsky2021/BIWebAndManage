@@ -16,6 +16,35 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `answers`
+--
+
+DROP TABLE IF EXISTS `answers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `answers` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `questionId` bigint DEFAULT NULL,
+  `uId` bigint DEFAULT NULL,
+  `content` text COLLATE utf8mb4_unicode_ci,
+  `isAccepted` tinyint DEFAULT NULL,
+  `status` tinyint DEFAULT NULL,
+  `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `answers`
+--
+
+LOCK TABLES `answers` WRITE;
+/*!40000 ALTER TABLE `answers` DISABLE KEYS */;
+INSERT INTO `answers` VALUES (1,1,1,'sssss',1,NULL,'2026-03-02 13:10:03'),(2,2,1,'fff',1,NULL,'2026-03-02 13:12:23');
+/*!40000 ALTER TABLE `answers` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `article`
 --
 
@@ -77,6 +106,35 @@ INSERT INTO `article_type` VALUES (1,'单支染膏1',0,0,'2026-01-20 16:32:46',N
 UNLOCK TABLES;
 
 --
+-- Table structure for table `comment`
+--
+
+DROP TABLE IF EXISTS `comment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `comment` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `topicId` bigint DEFAULT NULL,
+  `uId` bigint DEFAULT NULL,
+  `content` text COLLATE utf8mb4_unicode_ci,
+  `parentId` bigint DEFAULT NULL,
+  `likes` bigint DEFAULT NULL,
+  `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `comment`
+--
+
+LOCK TABLES `comment` WRITE;
+/*!40000 ALTER TABLE `comment` DISABLE KEYS */;
+INSERT INTO `comment` VALUES (1,1,1,'测试',0,NULL,'2026-02-28 13:12:43'),(2,1,1,'111',0,NULL,'2026-02-28 13:31:25'),(3,1,1,'3333',1,NULL,'2026-02-28 14:06:03'),(4,1,1,'444',3,NULL,'2026-02-28 14:06:10'),(5,1,1,'55',3,NULL,'2026-02-28 14:10:16'),(6,1,1,'0000000',0,NULL,'2026-02-28 14:49:24'),(7,1,1,'123',6,NULL,'2026-02-28 14:53:08'),(8,2,2,'123',0,NULL,'2026-02-28 18:18:05'),(9,2,2,'234',8,NULL,'2026-02-28 18:18:09');
+/*!40000 ALTER TABLE `comment` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `menu`
 --
 
@@ -102,6 +160,63 @@ LOCK TABLES `menu` WRITE;
 /*!40000 ALTER TABLE `menu` DISABLE KEYS */;
 INSERT INTO `menu` VALUES (1,'权限管理','Key','/users',0,0),(2,'用户管理','User','/users',1,0),(3,'角色权限管理','Key','/roles',1,0),(4,'菜单管理','Document','/menus',1,0),(6,'文章管理','Document','/articles/list',0,1),(7,' 文章列表','List','/articles/list',6,1),(8,'新增文章','Document','/articles/form',6,1),(9,'文章分类管理','FolderOpened','/articleTypes/list',0,1),(10,'分类列表','List','/articleTypes/list',9,1);
 /*!40000 ALTER TABLE `menu` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `question_tags`
+--
+
+DROP TABLE IF EXISTS `question_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `question_tags` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `question_id` bigint DEFAULT NULL,
+  `tag_id` bigint DEFAULT NULL,
+  `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `question_tags`
+--
+
+LOCK TABLES `question_tags` WRITE;
+/*!40000 ALTER TABLE `question_tags` DISABLE KEYS */;
+INSERT INTO `question_tags` VALUES (1,1,1,'2026-03-01 18:19:53'),(2,1,2,'2026-03-01 18:19:53'),(3,2,1,'2026-03-02 12:31:21'),(4,2,3,'2026-03-02 12:31:21'),(5,3,1,'2026-03-02 12:31:36'),(6,4,6,'2026-03-02 13:03:54'),(7,4,4,'2026-03-02 13:03:54'),(8,1,6,'2026-03-02 13:09:46'),(9,1,4,'2026-03-02 13:09:46'),(10,2,7,'2026-03-02 13:12:15'),(11,2,6,'2026-03-02 13:12:15');
+/*!40000 ALTER TABLE `question_tags` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `questions`
+--
+
+DROP TABLE IF EXISTS `questions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `questions` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT NULL,
+  `content` text,
+  `uId` bigint DEFAULT NULL,
+  `pageViews` bigint DEFAULT '0',
+  `likes` bigint DEFAULT '0',
+  `status` tinyint DEFAULT '0' COMMENT '0:待回答,1:已回答,2:已解决',
+  `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updateTime` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `questions`
+--
+
+LOCK TABLES `questions` WRITE;
+/*!40000 ALTER TABLE `questions` DISABLE KEYS */;
+INSERT INTO `questions` VALUES (1,'sss','ssssssss',1,3,1,2,'2026-03-02 13:09:46',NULL),(2,'dfff','ffffffff',1,2,0,2,'2026-03-02 13:12:15',NULL);
+/*!40000 ALTER TABLE `questions` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -157,6 +272,32 @@ INSERT INTO `role_menu` VALUES (21,1,1),(22,1,2),(23,1,3),(24,1,4),(35,2,6),(36,
 UNLOCK TABLES;
 
 --
+-- Table structure for table `tags`
+--
+
+DROP TABLE IF EXISTS `tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tags` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) DEFAULT NULL,
+  `description` varchar(200) DEFAULT NULL,
+  `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tags`
+--
+
+LOCK TABLES `tags` WRITE;
+/*!40000 ALTER TABLE `tags` DISABLE KEYS */;
+INSERT INTO `tags` VALUES (1,'染发','染发','2026-03-01 09:07:32'),(2,'烫发1','烫发','2026-03-01 10:47:41'),(3,'吹发','','2026-03-01 14:35:45'),(4,'试试','','2026-03-01 14:36:31'),(6,'dd','d','2026-03-02 13:03:41'),(7,'ff','ff','2026-03-02 13:12:03');
+/*!40000 ALTER TABLE `tags` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `test`
 --
 
@@ -189,16 +330,16 @@ DROP TABLE IF EXISTS `topics`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `topics` (
-  `id` bigint NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `title` varchar(255) DEFAULT NULL,
   `content` text,
   `uId` bigint DEFAULT NULL,
-  `likes` bigint DEFAULT NULL,
-  `parentId` bigint DEFAULT '0',
-  `createTime` datetime DEFAULT NULL,
+  `pageViews` bigint DEFAULT '0',
+  `likes` bigint DEFAULT '0',
+  `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
   `updateTime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -207,6 +348,7 @@ CREATE TABLE `topics` (
 
 LOCK TABLES `topics` WRITE;
 /*!40000 ALTER TABLE `topics` DISABLE KEYS */;
+INSERT INTO `topics` VALUES (1,'话题1','话题1话题1',1,58,4,'2026-02-28 11:57:11',NULL),(2,'000','11111',2,4,1,'2026-02-28 18:17:57',NULL);
 /*!40000 ALTER TABLE `topics` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -280,7 +422,7 @@ CREATE TABLE `web_user` (
   `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
   `updateTime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -289,8 +431,60 @@ CREATE TABLE `web_user` (
 
 LOCK TABLES `web_user` WRITE;
 /*!40000 ALTER TABLE `web_user` DISABLE KEYS */;
-INSERT INTO `web_user` VALUES (1,'000','nSSXzuhG4WilyjUHHaeaWg==','13100000000','/fileManageEndPoint/downLoadFromOSS?fileName=WebSiteAvatars/1772243449626_avatar.jpg','00','2026-02-28 09:35:16',NULL);
+INSERT INTO `web_user` VALUES (1,'000','nSSXzuhG4WilyjUHHaeaWg==','13100000000','/fileManageEndPoint/downLoadFromOSS?fileName=WebSiteAvatars/1772243449626_avatar.jpg','00','2026-02-28 09:35:16',NULL),(2,'111','i9Pko7W0jiwpL+R5ph3Qmg==','13122222222','','00','2026-02-28 18:17:31',NULL);
 /*!40000 ALTER TABLE `web_user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `webuser_questionlikes`
+--
+
+DROP TABLE IF EXISTS `webuser_questionlikes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `webuser_questionlikes` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `uId` bigint DEFAULT NULL,
+  `qId` bigint DEFAULT NULL,
+  `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `webuser_questionlikes`
+--
+
+LOCK TABLES `webuser_questionlikes` WRITE;
+/*!40000 ALTER TABLE `webuser_questionlikes` DISABLE KEYS */;
+INSERT INTO `webuser_questionlikes` VALUES (1,1,1,'2026-03-02 13:09:51');
+/*!40000 ALTER TABLE `webuser_questionlikes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `webuser_topiclikes`
+--
+
+DROP TABLE IF EXISTS `webuser_topiclikes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `webuser_topiclikes` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `uId` bigint DEFAULT NULL,
+  `tId` bigint DEFAULT NULL,
+  `createTime` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `webuser_topiclikes`
+--
+
+LOCK TABLES `webuser_topiclikes` WRITE;
+/*!40000 ALTER TABLE `webuser_topiclikes` DISABLE KEYS */;
+INSERT INTO `webuser_topiclikes` VALUES (8,2,2,'2026-02-28 18:18:14'),(11,1,1,'2026-03-02 13:06:09');
+/*!40000 ALTER TABLE `webuser_topiclikes` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -302,4 +496,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-28  9:51:59
+-- Dump completed on 2026-03-02 13:23:05

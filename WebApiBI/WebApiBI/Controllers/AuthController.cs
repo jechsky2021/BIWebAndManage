@@ -78,7 +78,7 @@ namespace WebApiBI.Controllers
             _logger.LogInformation("Login attempt for user: {Username}", req.uName);
             DataResult ds = ValidateCredentials(req);
 
-            DTO_User user = JsonConvert.DeserializeObject<List<DTO_User>>(ds.data.ToString() ?? "")?.FirstOrDefault() ?? new DTO_User();
+            DTO_User user = ((List<DTO_User>)ds.data).FirstOrDefault() ?? new DTO_User();
 
             if (user.id > 0)
             {
@@ -121,7 +121,7 @@ namespace WebApiBI.Controllers
             _logger.LogInformation("Login attempt for user: {Username}", req.uName);
             DataResult ds = ValidateWebCredentials(req);
 
-            DTO_WebUser user = JsonConvert.DeserializeObject<List<DTO_WebUser>>(ds.data.ToString() ?? "")?.FirstOrDefault() ?? new DTO_WebUser();
+            DTO_WebUser user = ((List<DTO_WebUser>)ds.data).FirstOrDefault() ?? new DTO_WebUser();
 
             if (user.id > 0)
             {

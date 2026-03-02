@@ -15,13 +15,13 @@ namespace ProfessionalLogic.menus
         public DataResult getMenuByUid(DTO_Id dTO_Id)
         {
             DataSet result = DataHandler.QueryDataSet<DTO_Id>(dTO_Id, ProcName.proc_getMenuByUid, OpBase.beautyindustry);
-            return Select(result);
+            return Select<DTO_Menu>(result);
         }
 
         public DataResult getAll()
         {
             DataSet result = DataHandler.QueryDataSet(ProcName.proc_selectMenuAll, OpBase.beautyindustry);
-            return Select(result);
+            return Select<DTO_Menu>(result);
         }
 
         public DataResult addMenu(DTO_Menu dTO_Menu)

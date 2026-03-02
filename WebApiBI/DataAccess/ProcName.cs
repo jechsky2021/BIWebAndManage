@@ -34,6 +34,77 @@ namespace DataAccess
 
         #endregion
 
+        #region questions
+
+        public static readonly string proc_insertQuestion = "proc_insertQuestion";
+        public static readonly string proc_insertQuestionTag = "proc_insertQuestionTag";
+        public static readonly string proc_insertAnswer = "proc_insertAnswer";
+        public static readonly string proc_insertWebUserQuestionLikes = "proc_insertWebUserQuestionLikes";
+
+        public static readonly string proc_selectQuestionsByPage = "proc_selectQuestionsByPage";
+        public static readonly string proc_selectAnswerByPage = "proc_selectAnswerByPage";
+        public static readonly string proc_selectQuestionById = "proc_selectQuestionById";
+        public static readonly string proc_selectUidQid = "proc_selectUidQid";
+        public static readonly string proc_selectMyQuestionsByPage = "proc_selectMyQuestionsByPage";
+        public static readonly string proc_selectMyQuestionLikesByPage = "proc_selectMyQuestionLikesByPage";
+
+        public static readonly string proc_updateQuestionPageView = "proc_updateQuestionPageView";
+        public static readonly string proc_updateQuestionLikes = "proc_updateQuestionLikes";
+        public static readonly string proc_updateQuestionStatus = "proc_updateQuestionStatus";
+        public static readonly string proc_updateAnsweredStatus = "proc_updateAnsweredStatus";
+        public static readonly string proc_updateAnswerIsAccepted = "proc_updateAnswerIsAccepted";
+
+        public static readonly string proc_deleteAnswerById = "proc_deleteAnswerById";
+        public static readonly string proc_deleteQuestionById = "proc_deleteQuestionById";
+        public static readonly string proc_deleteWebUserQuestionLikes = "proc_deleteWebUserQuestionLikes";
+        public static readonly string proc_deleteQuestionTag = "proc_deleteQuestionTag";
+
+        public static readonly string proc_cancelQuestionLike = "proc_cancelQuestionLike";
+
+        #endregion
+
+        #region tags
+
+        public static readonly string proc_insertTag = "proc_insertTag";
+        public static readonly string proc_selectTagByName = "proc_selectTagByName";
+        public static readonly string proc_selectAllTags = "proc_selectAllTags";
+        public static readonly string proc_selectTagsByPage = "proc_selectTagsByPage";
+        public static readonly string proc_selectTagById = "proc_selectTagById";
+        public static readonly string proc_updateTagById = "proc_updateTagById";
+        public static readonly string proc_deleteTagById = "proc_deleteTagById";
+
+        #endregion
+
+
+        #region topics
+
+        public static readonly string proc_insertTopics = "proc_insertTopics";
+        public static readonly string proc_insertComment = "proc_insertComment";
+        public static readonly string proc_selectTopicsByPage = "proc_selectTopicsByPage";
+        public static readonly string proc_selectCommentByPage = "proc_selectCommentByPage";
+
+        public static readonly string proc_selectTopicById = "proc_selectTopicById";
+        public static readonly string proc_updateTopicPageViews = "proc_updateTopicPageViews";
+        public static readonly string proc_updateTopicLikes = "proc_updateTopicLikes";
+
+        public static readonly string proc_cancelTopicLike = "proc_cancelTopicLike";
+
+        public static readonly string proc_selectMyTopicsByPage = "proc_selectMyTopicsByPage";
+        public static readonly string proc_selectMyLikesByPage = "proc_selectMyLikesByPage";
+        
+
+        #endregion
+
+        #region webuser_topiclikes
+
+        public static readonly string proc_insertWebUserTopicLikes = "proc_insertWebUserTopicLikes";
+        public static readonly string proc_selectUidTid = "proc_selectUidTid";
+        public static readonly string proc_deleteWebUserTopicLikes = "proc_deleteWebUserTopicLikes";
+
+        #endregion
+
+
+
         #region userrole
 
         public static readonly string proc_insertUserRole = "proc_insertUserRole";

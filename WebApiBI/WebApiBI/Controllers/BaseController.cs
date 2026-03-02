@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ProfessionalLogic;
+using ProfessionalLogic.answers;
 using ProfessionalLogic.articles;
 using ProfessionalLogic.articleTypes;
+using ProfessionalLogic.comments;
 using ProfessionalLogic.menus;
+using ProfessionalLogic.questions;
 using ProfessionalLogic.roles;
+using ProfessionalLogic.tags;
+using ProfessionalLogic.topics;
 using ProfessionalLogic.users;
 using ProfessionalLogic.WebArticles;
 using ProfessionalLogic.webArticleTypes;
@@ -52,6 +55,26 @@ namespace WebApiBI.Controllers
         protected IWebUserBaseService webUserBaseService  =>
            HttpContext?.RequestServices?.GetRequiredService<IWebUserBaseService>()
            ?? throw new InvalidOperationException("IWebUserBaseService 未注册或 HttpContext 为 null。请在 Program.cs 中注册服务。");
+
+        protected IWebTopicsBaseService webTopicsBaseService =>
+           HttpContext?.RequestServices?.GetRequiredService<IWebTopicsBaseService>()
+           ?? throw new InvalidOperationException("ITopicsBaseService 未注册或 HttpContext 为 null。请在 Program.cs 中注册服务。");
+
+        protected IWebCommentsBaseService webCommentsBaseService =>
+           HttpContext?.RequestServices?.GetRequiredService<IWebCommentsBaseService>()
+           ?? throw new InvalidOperationException("IWebCommentsBaseService 未注册或 HttpContext 为 null。请在 Program.cs 中注册服务。");
+
+        protected IWebQuestionsBaseService webQuestionsBaseService =>
+          HttpContext?.RequestServices?.GetRequiredService<IWebQuestionsBaseService>()
+          ?? throw new InvalidOperationException("IWebQuestionsBaseService 未注册或 HttpContext 为 null。请在 Program.cs 中注册服务。");
+
+        protected IWebAnswersBaseService webAnswersBaseService =>
+          HttpContext?.RequestServices?.GetRequiredService<IWebAnswersBaseService>()
+          ?? throw new InvalidOperationException("IWebAnswersBaseService 未注册或 HttpContext 为 null。请在 Program.cs 中注册服务。");
+
+        protected IWebTagsBaseService webTagsBaseService =>
+          HttpContext?.RequestServices?.GetRequiredService<IWebTagsBaseService>()
+          ?? throw new InvalidOperationException("IWebTagsBaseService 未注册或 HttpContext 为 null。请在 Program.cs 中注册服务。");
 
 
     }

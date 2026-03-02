@@ -24,7 +24,7 @@ namespace WebApiBI.Controllers
         public ActionResult GetDetailById([FromBody] DTO_Id dTO_Id)
         {
             DataResult ds = webArticleBaseService.getWebDetailById(dTO_Id);
-            List<DTO_Article> ls = JsonConvert.DeserializeObject<List<DTO_Article>>(ds.data?.ToString() ?? "0") ?? new List<DTO_Article>();
+            List<DTO_Article> ls = (List<DTO_Article>)ds.data;
             ds.data = ls;
 
             if(ls.Count > 0)

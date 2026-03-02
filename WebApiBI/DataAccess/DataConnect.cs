@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿﻿using MySql.Data.MySqlClient;
 using System;
 using System.Data;
 using System.Diagnostics;
@@ -9,7 +9,7 @@ namespace DataAccess
 	{
         MySqlConnection _conn;
 
-        readonly string connBeautyIndustry = "Server=127.0.0.1;Port=3306;Database=beautyindustry;Uid=root;Pwd=root;Allow User Variables=True;Convert Zero Datetime=True;";
+        readonly string connBeautyIndustry = "Server=127.0.0.1;Port=3306;Database=beautyindustry;Uid=root;Pwd=root;Allow User Variables=True;Convert Zero Datetime=True;Charset=utf8mb4;";
 
         private Stopwatch _mWatch;
 

@@ -18,7 +18,7 @@ namespace ProfessionalLogic.users
             // string aespwd = AesHelper.Encrypt(dTO_User.uPasswords);
 
             DataSet result = DataHandler.QueryDataSet<DTO_User>(dTO_User, ProcName.proc_login, OpBase.beautyindustry);
-            return Select(result);
+            return Select<DTO_User>(result);
         }
 
         public DataResult getByPage(DTO_User dTO_User)
@@ -30,7 +30,7 @@ namespace ProfessionalLogic.users
         public DataResult getRolesByUid(DTO_Id model)
         {
             DataSet result = DataHandler.QueryDataSet<DTO_Id>(model, ProcName.proc_selectRolesByUid, OpBase.beautyindustry);
-            return Select(result);
+            return Select<DTO_Role>(result);
         }
 
         public DataResult addUser(DTO_User model)

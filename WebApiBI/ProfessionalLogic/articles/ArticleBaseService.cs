@@ -23,7 +23,7 @@ namespace ProfessionalLogic.articles
         public DataResult getDetailById(DTO_Id model)
         {
             DataSet ds = DataHandler.QueryDataSet<DTO_Id>(model, ProcName.proc_selectArticleById, OpBase.beautyindustry);
-            return Select(ds);
+            return Select<DTO_Article>(ds);
         }
 
         public DataResult updateStatus(DTO_Article model)

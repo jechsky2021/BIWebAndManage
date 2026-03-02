@@ -1,5 +1,6 @@
 ﻿using DataAccess;
 using DTO;
+using DTO.DTOMenu;
 using DTO.DTORole;
 using Microsoft.Extensions.Logging;
 using System.Data;
@@ -39,7 +40,7 @@ namespace ProfessionalLogic.roles
         public DataResult getMenuByRoleId(DTO_Id dTO_Id)
         {
             DataSet ds = DataHandler.QueryDataSet<DTO_Id>(dTO_Id, ProcName.proc_selectMenuByRoleId, OpBase.beautyindustry);
-            return Select(ds);
+            return Select<DTO_Menu>(ds);
         }
 
         public DataResult assignMenus(DTO_RoleIdMenuIds dTO_RoleIdMenuIds)

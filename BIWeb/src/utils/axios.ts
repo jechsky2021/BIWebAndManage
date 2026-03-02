@@ -15,6 +15,7 @@ service.interceptors.request.use(
   (config: any): any => {
     // 可以在这里添加token等认证信息
     const token = localStorage.getItem('token');
+    console.log('token:', token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

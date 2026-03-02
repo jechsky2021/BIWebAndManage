@@ -14,7 +14,6 @@ namespace WebApiBI.Controllers
         {
             long uid = long.Parse(User.FindFirst("uid")?.Value??"0");
             DataResult ds = menuBaseService.getMenuByUid(new DTO_Id() { id = uid });
-            ds.data = JsonConvert.DeserializeObject<List<DTO_Menu>>(ds.data?.ToString()??"")??new List<DTO_Menu>(); 
             return Json(ds);
         }
 
@@ -22,7 +21,6 @@ namespace WebApiBI.Controllers
         public ActionResult GetMenuAll()
         {
             DataResult ds = menuBaseService.getAll();
-            ds.data = JsonConvert.DeserializeObject<List<DTO_Menu>>(ds.data?.ToString() ?? "") ?? new List<DTO_Menu>();
             return Json(ds);
         }
 

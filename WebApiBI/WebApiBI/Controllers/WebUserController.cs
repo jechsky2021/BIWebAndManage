@@ -1,11 +1,7 @@
 ﻿using DTO;
-using DTO.DTORole;
-using DTO.DTOUser;
 using DTO.DTOWebUser;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using ProfessionalLogic.users;
 
 namespace WebApiBI.Controllers
 {
@@ -50,7 +46,6 @@ namespace WebApiBI.Controllers
         public IActionResult GetUserById(DTO_Id model)
         {
             DataResult ds = webUserBaseService.getUserById(model);
-            ds.data = JsonConvert.DeserializeObject<List<DTO_WebUser>>(ds.data.ToString() ?? "") ?? new List<DTO_WebUser>();
             return Json(ds);
         }
 

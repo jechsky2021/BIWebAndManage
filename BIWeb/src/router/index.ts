@@ -9,7 +9,19 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/beauty-circle',
     name: 'BeautyCircle',
-    component: () => import('../views/BeautyCircle.vue')
+    component: () => import('../views/BeautyCircle/BeautyCircle.vue')
+  },
+  {
+    path: '/topic/:id',
+    name: 'TopicDetail',
+    component: () => import('../views/BeautyCircle/TopicDetail.vue'),
+    props: true
+  },
+  {
+    path: '/question/:id',
+    name: 'QuestionDetail',
+    component: () => import('../views/BeautyCircle/QuestionDetail.vue'),
+    props: true
   },
   {
     path: '/knowledge',
@@ -42,6 +54,11 @@ const routes: RouteRecordRaw[] = [
     path: '/user-center',
     name: 'UserCenter',
     component: () => import('../views/User/UserCenter.vue')
+  },
+  {
+    path: '/tag-manage',
+    name: 'TagManage',
+    component: () => import('../views/Tags/TagManage.vue')
   }
 ]
 

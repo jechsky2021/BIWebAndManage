@@ -22,7 +22,6 @@ namespace WebApiBI.Controllers
         public IActionResult GetMenuByRoleId(DTO_Id dTO_Id)
         {
             DataResult ds = roleBaseService.getMenuByRoleId(dTO_Id);
-            ds.data = JsonConvert.DeserializeObject<List<DTO_Menu>>(ds.data.ToString()??"")??new List<DTO_Menu>();
             return Json(ds);
         }
 
