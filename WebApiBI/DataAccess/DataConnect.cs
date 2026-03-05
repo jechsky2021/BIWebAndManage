@@ -1,5 +1,5 @@
-﻿﻿using MySql.Data.MySqlClient;
-using System;
+﻿﻿﻿﻿using MySql.Data.MySqlClient;
+using Npgsql;
 using System.Data;
 using System.Diagnostics;
 
@@ -7,30 +7,61 @@ namespace DataAccess
 {
 	public class DataConnect
 	{
-        MySqlConnection _conn;
+        // MySQL 连接
+        MySqlConnection _mySqlConn;
+        readonly string mySqlConnBeautyIndustry = "Server=127.0.0.1;Port=3306;Database=beautyindustry;Uid=root;Pwd=root;Allow User Variables=True;Convert Zero Datetime=True;Charset=utf8mb4;";
 
-        readonly string connBeautyIndustry = "Server=127.0.0.1;Port=3306;Database=beautyindustry;Uid=root;Pwd=root;Allow User Variables=True;Convert Zero Datetime=True;Charset=utf8mb4;";
+        // PostgreSQL 连接
+        NpgsqlConnection _pgSqlConn;
+        readonly string pgSqlConnBeautyIndustry = "Host=pgm-uf6dq7f4ft960e5jxo.pg.rds.aliyuncs.com;Port=5432;Database=beautyindustry;Username=hairCareMall;Password=DekeQ6688;";
 
         private Stopwatch _mWatch;
+        public DatabaseType DatabaseType { get; set; } = DatabaseType.MySQL;
 
         public DataConnect()
 		{
 			this.getConn();
 			_mWatch = new Stopwatch();
 		}
-        public MySqlConnection ConnPassWord
+
+        public DataConnect(DatabaseType databaseType)
         {
-            set { _conn = value; }
-            get { return _conn; }
+            this.DatabaseType = databaseType;
+            this.getConn();
+            _mWatch = new Stopwatch();
+        }
+
+        // 获取 MySQL 连接
+        public MySqlConnection MySqlConn
+        {
+            set { _mySqlConn = value; }
+            get { return _mySqlConn; }
+        }
+
+        // 获取 PostgreSQL 连接
+        public NpgsqlConnection PgSqlConn
+        {
+            set { _pgSqlConn = value; }
+            get { return _pgSqlConn; }
         }
        
         private void getConn()
 		{
 			try
 			{
-                if (this._conn == null)
+                if (DatabaseType == DatabaseType.MySQL)
                 {
-                    this._conn = new MySqlConnection(connBeautyIndustry);
+                    if (this._mySqlConn == null)
+                    {
+                        this._mySqlConn = new MySqlConnection(mySqlConnBeautyIndustry);
+                    }
+                }
+                else
+                {
+                    if (this._pgSqlConn == null)
+                    {
+                        this._pgSqlConn = new NpgsqlConnection(pgSqlConnBeautyIndustry);
+                    }
                 }
 
             }
@@ -40,6 +71,8 @@ namespace DataAccess
 				throw ex;
 			}
 		}
+
+        // 打开 MySQL 连接
 		public bool OpenConn(MySqlConnection conn)
 		{
 			try
@@ -57,6 +90,25 @@ namespace DataAccess
 			return false;
 		}
 
+        // 打开 PostgreSQL 连接
+        public bool OpenConn(NpgsqlConnection conn)
+        {
+            try
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.Message);
+            }
+            return false;
+        }
+
+        // 关闭 MySQL 连接
 		public bool CloseConn(MySqlConnection? conn)
 		{
 			try
@@ -73,5 +125,23 @@ namespace DataAccess
 			}
 			return false;
 		}
+
+        // 关闭 PostgreSQL 连接
+        public bool CloseConn(NpgsqlConnection? conn)
+        {
+            try
+            {
+                if (conn?.State != ConnectionState.Closed)
+                    conn?.Close();
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.Message);
+            }
+            return false;
+        }
 	}
 }
