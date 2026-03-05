@@ -1,9 +1,5 @@
 ﻿using DTO;
-using DTO.Article;
 using DTO.WebArticle;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ProfessionalLogic.WebArticles
 {
@@ -11,7 +7,7 @@ namespace ProfessionalLogic.WebArticles
     {
         DataResult getWebArticleByPage(DTO_WebArticle model);
         DataResult getWebDetailById(DTO_Id model);
-        DataResult updateWebArticle(DTO_Article model);
+        DataResult updateWebArticle(DTO_Id model);
         DataResult getSearchArticles(DTO_KeyWords model);
     }
 }

@@ -1,10 +1,7 @@
 ﻿using DTO;
-using DTO.Article;
-using DTO.DTOMenu;
 using DTO.WebArticle;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace WebApiBI.Controllers
 {
@@ -24,14 +21,7 @@ namespace WebApiBI.Controllers
         public ActionResult GetDetailById([FromBody] DTO_Id dTO_Id)
         {
             DataResult ds = webArticleBaseService.getWebDetailById(dTO_Id);
-            List<DTO_Article> ls = (List<DTO_Article>)ds.data;
-            ds.data = ls;
-
-            if(ls.Count > 0)
-            {
-                ls.FirstOrDefault().pageViews++;
-            }
-            webArticleBaseService.updateWebArticle(ls.FirstOrDefault());
+            webArticleBaseService.updateWebArticle(dTO_Id);
 
             return Json(ds);
         }

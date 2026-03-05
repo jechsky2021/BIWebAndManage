@@ -2398,7 +2398,6 @@ DELIMITER ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
 ALTER DATABASE `beautyindustry` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
 /*!50003 DROP PROCEDURE IF EXISTS `proc_updatePageViews` */;
-ALTER DATABASE `beautyindustry` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -2408,10 +2407,10 @@ ALTER DATABASE `beautyindustry` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_updatePageViews`(in id bigint,in pageViews bigint)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_updatePageViews`(in id bigint)
 BEGIN
 
-update article art set art.pageViews = pageViews where art.id = id;
+update article art set art.pageViews = ifnull(pageViews,0) + 1 where art.id = id;
 
 END ;;
 DELIMITER ;
@@ -2419,7 +2418,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-ALTER DATABASE `beautyindustry` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
 /*!50003 DROP PROCEDURE IF EXISTS `proc_updateQuestionLikes` */;
 ALTER DATABASE `beautyindustry` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -2731,4 +2729,4 @@ ALTER DATABASE `beautyindustry` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-05 11:42:24
+-- Dump completed on 2026-03-05 17:21:19

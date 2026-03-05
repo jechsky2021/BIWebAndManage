@@ -25,9 +25,9 @@ namespace ProfessionalLogic.WebArticles
             return Select<DTO_Article>(ds);
         }
 
-        public DataResult updateWebArticle(DTO_Article model)
+        public DataResult updateWebArticle(DTO_Id model)
         {
-            int? result = DataHandler.OperateObject<DTO_Article>(model, ProcName.proc_updatePageViews, OpBase.beautyindustry);
+            int? result = DataHandler.OperateObject<DTO_Id>(model, ProcName.proc_updatePageViews, OpBase.beautyindustry);
             return Operation(result);
         }
 
