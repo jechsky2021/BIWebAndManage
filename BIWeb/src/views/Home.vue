@@ -6,20 +6,20 @@
         <!-- 顶部轮播 -->
         <div class="carousel">
           <div class="carousel-item">
-            <router-link to="/article/1" class="carousel-link">
+            <!-- <router-link to="/article/1" class="carousel-link"> -->
               <img src="../assets/images/carousel-banner.svg" alt="2026夏季流行发色趋势" class="carousel-image" />
               <div class="carousel-caption">
                 <h3>2026夏季流行发色趋势</h3>
                 <!-- <p class="trend-description">探索今夏最受欢迎的发色潮流</p> -->
               </div>
-            </router-link>
+            <!-- </router-link> -->
           </div>
         </div>
         
         <!-- 榜单区域 -->
         <div class="content-section">
           <div class="left-column">
-            <RankingsModule @tab-change="handleTabChange" />
+            <RankingsModule />
           </div>
           <div class="right-column">
             <div class="latest-section">
@@ -78,11 +78,6 @@ const hairColorArticles = ref<any[]>([]);
 const hairCareArticles = ref<any[]>([]);
 const latestArticles = ref<any[]>([]);
 
-const handleTabChange = (tab: string) => {
-  console.log('Tab changed to:', tab);
-  // 可以在这里添加额外的逻辑，比如统计用户行为等
-};
-
 const fetchLatestArticles = async () => {
   try {
     const data = await getArticlesByPage({
@@ -117,7 +112,7 @@ const fetchHairColorArticles = async () => {
       pageNumber: 1,
       pageSize: 3
     });
-    console.log("hairColorArticles:", data);
+    // console.log("hairColorArticles:", data);
     if (data.data && data.data.lists) {
       hairColorArticles.value = data.data.lists.map((item: any) => ({
         id: item.id,
@@ -139,7 +134,7 @@ const fetchHairCareArticles = async () => {
       pageNumber: 1,
       pageSize: 3
     });
-    console.log("hairCareArticles:", data);
+    // console.log("hairCareArticles:", data);
     if (data.data && data.data.lists) {
       hairCareArticles.value = data.data.lists.map((item: any) => ({
         id: item.id,
@@ -327,6 +322,11 @@ onMounted(async () => {
               font-weight: 500;
               color: #333;
               transition: color 0.2s ease;
+              display: -webkit-box;
+              -webkit-line-clamp: 1;
+              -webkit-box-orient: vertical;
+              overflow: hidden;
+              text-overflow: ellipsis;
 
               &:hover {
                 color: #ff6b6b;
@@ -340,6 +340,7 @@ onMounted(async () => {
               overflow: hidden;
               text-overflow: ellipsis;
               display: -webkit-box;
+              -webkit-line-clamp: 2;
               -webkit-box-orient: vertical;
             }
           }

@@ -143,7 +143,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { aesEncrypt, aesCbcEncrypt } from '../utils/crypto'
+import { aesCbcEncrypt } from '../utils/crypto'
 import { register, login } from '../api/user'
 
 const router = useRouter();
@@ -189,7 +189,7 @@ const registerRules = reactive<FormRules>({
   ],
   agreement: [
     { 
-      validator: (_rule, value, callback) => {
+      validator: (_rule: any, value: boolean, callback: (error?: string | Error) => void) => {
         if (!value) {
           callback(new Error('请同意用户协议和隐私政策'))
         } else {
@@ -216,9 +216,9 @@ const handleLogin = async () => {
     }
     
     // 调用登录API
-    console.log("登录参数:", params)
+    // console.log("登录参数:", params)
     const response = await login(params)
-    console.log("登录响应:", response)
+   // console.log("登录响应:", response)
     
     if (response.sign === "1") {
       ElMessage.success('登录成功！')
@@ -256,9 +256,9 @@ const handleRegister = async () => {
     }
 
     // 调用注册API
-    console.log("注册参数:", params)
+    // console.log("注册参数:", params)
     const response = await register(params);
-    console.log("注册响应:", response)
+    // console.log("注册响应:", response)
     
     if(response.sign === "1"){
       ElMessage.success('注册成功！')

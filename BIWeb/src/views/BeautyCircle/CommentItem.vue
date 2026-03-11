@@ -13,7 +13,8 @@
         </div>
         <div class="comment-text">{{ comment.content }}</div>
         <div class="comment-actions">
-          <span class="reply-btn" @click="showReplyForm(comment.id)">回复</span>
+          <span v-if="isLoggedIn" class="reply-btn" @click="showReplyForm(comment.id)">回复</span>
+          <router-link v-else to="/login" class="reply-btn">回复</router-link>
         </div>
 
         <!-- 回复表单 -->
@@ -45,6 +46,7 @@
             :reply-loading="replyLoading"
             :reply-form="replyForm"
             :topic-id="topicId"
+            :is-logged-in="isLoggedIn"
             @show-reply="showReplyForm"
             @cancel-reply="cancelReply"
             @submit-reply="handleSubmitReply"
@@ -58,8 +60,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { getAvatarUrl } from '../../utils/helpers'
 import dayjs from 'dayjs';
+
+const router = useRouter()
 
 const props = defineProps<{
   comment: any
@@ -68,6 +73,7 @@ const props = defineProps<{
   replyLoading: boolean
   replyForm: { content: string }
   topicId: string
+  isLoggedIn?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -76,6 +82,11 @@ const emit = defineEmits<{
   (e: 'submitReply', parentId: number): void
   (e: 'refreshComments'): void
 }>()
+
+// 登录状态
+const isLoggedIn = computed(() => {
+  return props.isLoggedIn || !!localStorage.getItem('token')
+})
 
 // 获取子评论
 const childComments = computed(() => {
@@ -90,7 +101,11 @@ const parentAuthor = computed(() => {
 })
 
 const showReplyForm = (commentId: number) => {
-  emit('showReply', commentId)
+  if (isLoggedIn.value) {
+    emit('showReply', commentId)
+  } else {
+    router.push('/login')
+  }
 }
 
 const cancelReply = () => {
@@ -98,7 +113,11 @@ const cancelReply = () => {
 }
 
 const handleSubmitReply = (parentId: number) => {
-  emit('submitReply', parentId)
+  if (isLoggedIn.value) {
+    emit('submitReply', parentId)
+  } else {
+    router.push('/login')
+  }
 }
 
 const refreshComments = () => {

@@ -105,7 +105,7 @@ const activeFilter = ref('latest');
 const activeViewMode = ref('list');
 
 const handleTabChange = (tab: string) => {
-  console.log('Tab changed to:', tab);
+  // console.log('Tab changed to:', tab);
   // 可以在这里添加额外的逻辑，比如统计用户行为等
 };
 
@@ -121,9 +121,9 @@ const loadArticles = async () => {
         pageNumber: currentPage.value,
         pageSize: 10
       };
-      console.log("params:",params)
+      // console.log("params:",params)
       response = await getSearchArticles(params);
-      console.log("response",response)
+     // console.log("response",response)
       categoryName.value = `搜索结果: ${keywords.value}`;
       categoryDescription.value = `找到相关文章`;
     } else {
@@ -152,7 +152,7 @@ const loadArticles = async () => {
         readCount: article.pageViews || 0,
         color: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7DC6F', '#BB8FCE', '#52BE80', '#F8C471', '#85C1E9'][index % 8]
       }));
-      console.log("articles:",articles.value);
+      // console.log("articles:",articles.value);
       
       if (response.data.total) {
         totalPages.value = Math.ceil(response.data.total / 10);

@@ -25,6 +25,9 @@
                 <li :class="{ active: activeTab === 'question-likes' }" @click="handleTabClick('question-likes')">
                   <span class="nav-text">我喜欢的问答</span>
                 </li>
+                <li :class="{ active: activeTab === 'article-likes' }" @click="handleTabClick('article-likes')">
+                  <span class="nav-text">我喜欢的文章</span>
+                </li>
               </ul>
             </nav>
           </aside>
@@ -158,6 +161,20 @@
               :page-size="questionLikesPageSize"
               @page-change="handleQuestionLikesPageChange"
             />
+
+            <!-- 我喜欢的文章 -->
+            <ContentList 
+              v-if="activeTab === 'article-likes'"
+              :title="'我喜欢的文章'"
+              :items="myArticleLikes"
+              :loading="loadingArticleLikes"
+              type="article-like"
+              :empty-text="'暂无喜欢的文章'"
+              :total="articleLikesTotal"
+              :current-page="articleLikesPage"
+              :page-size="articleLikesPageSize"
+              @page-change="handleArticleLikesPageChange"
+            />
           </div>
         </div>
       </div>
@@ -175,6 +192,7 @@ import { saveGoodsPic } from '../../api/files'
 import { getAvatarUrl } from '../../utils/helpers'
 import { getMyTopics, getMyLikes } from '../../api/topics'
 import { getMyQuestions, getMyQuestionLikes } from '../../api/questions'
+import { getMyArticleLikes } from '../../api/articles'
 import ContentList from '../../components/ContentList.vue'
 
 const editFormRef = ref<FormInstance>();
@@ -209,6 +227,11 @@ const handleTabClick = (tab: string) => {
         loadMyQuestionLikes();
       }
       break;
+    case 'article-likes':
+      if (myArticleLikes.value.length === 0) {
+        loadMyArticleLikes();
+      }
+      break;
   }
 };
 
@@ -239,20 +262,26 @@ const myQuestionLikes = ref<any[]>([]);
 const loadingQuestions = ref(false);
 const loadingQuestionLikes = ref(false);
 
+const myArticleLikes = ref<any[]>([]);
+const loadingArticleLikes = ref(false);
+
 const topicsTotal = ref(0);
 const favoritesTotal = ref(0);
 const questionsTotal = ref(0);
 const questionLikesTotal = ref(0);
+const articleLikesTotal = ref(0);
 
 const topicsPage = ref(1);
 const favoritesPage = ref(1);
 const questionsPage = ref(1);
 const questionLikesPage = ref(1);
+const articleLikesPage = ref(1);
 
 const topicsPageSize = ref(2);
 const favoritesPageSize = ref(2);
 const questionsPageSize = ref(2);
 const questionLikesPageSize = ref(2);
+const articleLikesPageSize = ref(2);
 
 // 获取基础图片文件夹路径
 const baseImgFolder = 'WebSiteAvatars'
@@ -287,7 +316,7 @@ const passwordRules = reactive<FormRules>({
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'blur' },
     { 
-      validator: (_rule, value, callback) => {
+      validator: (_rule: any, value: string, callback: (error?: string | Error) => void) => {
         if (value !== passwordForm.newPassword) {
           callback(new Error('两次输入的密码不一致'))
         } else {
@@ -310,7 +339,7 @@ const loadUserInfo = async () => {
       // 调用接口获取最新用户信息
       if (userInfo.value.id) {
         const response = await getUserInfo({ id: userInfo.value.id });
-        console.log("response:",response);
+       // console.log("response:",response);
         if (response.sign === '1' && response.data[0]) {
           userInfo.value = { ...userInfo.value, ...response.data[0] };
         }
@@ -351,9 +380,9 @@ const beforeUploadAvatar = (file: any) => {
         fileName: `${baseImgFolder}/${Date.now().toString()}_avatar`,
         base64Str: base64Image
       }
-      console.log("request:",request)
+     // console.log("request:",request)
       const response = await saveGoodsPic(request)
-      console.log("response:",response)
+     // console.log("response:",response)
       
       if (response.code === '0' || response.sign === '1') {
         const imagePath = response.data || ''
@@ -457,9 +486,9 @@ const loadMyTopics = async () => {
       pageNumber: topicsPage.value,
       pageSize: topicsPageSize.value
     }
-    console.log("loadMyTopics params:",params)
+    // console.log("loadMyTopics params:",params)
     const response = await getMyTopics(params);
-    console.log("loadMyTopics response:",response)
+    // console.log("loadMyTopics response:",response)
     
     if (response.sign === '1' && response.data) {
       myTopics.value = response.data.lists || [];
@@ -480,7 +509,7 @@ const loadMyFavorites = async () => {
       pageNumber: favoritesPage.value,
       pageSize: favoritesPageSize.value
     });
-    console.log("responselikes:",response)
+    // console.log("responselikes:",response)
     if (response.sign === '1' && response.data) {
       myFavorites.value = response.data.lists || [];
       favoritesTotal.value = response.data.total || 0;
@@ -501,7 +530,7 @@ const loadMyQuestions = async () => {
       pageSize: questionsPageSize.value
     }
     const response = await getMyQuestions(params);
-    console.log("response questions:", response)
+    // console.log("response questions:", response)
     if (response.sign === '1' && response.data) {
       myQuestions.value = response.data.lists || [];
       questionsTotal.value = response.data.total || 0;
@@ -522,7 +551,7 @@ const loadMyQuestionLikes = async () => {
       pageSize: questionLikesPageSize.value
     }
     const response = await getMyQuestionLikes(params);
-    console.log("response question likes:", response)
+    // console.log("response question likes:", response)
     if (response.sign === '1' && response.data) {
       myQuestionLikes.value = response.data.lists || [];
       questionLikesTotal.value = response.data.total || 0;
@@ -531,6 +560,26 @@ const loadMyQuestionLikes = async () => {
   } catch (error) {
     console.error('加载我喜欢的问答失败:', error);
     loadingQuestionLikes.value = false;
+  }
+};
+
+const loadMyArticleLikes = async () => {
+  try {
+    loadingArticleLikes.value = true;
+    const params = {
+      uId: userInfo.value.id,
+      pageNumber: articleLikesPage.value,
+      pageSize: articleLikesPageSize.value
+    }
+    const response = await getMyArticleLikes(params);
+    if (response.sign === '1' && response.data) {
+      myArticleLikes.value = response.data.lists || [];
+      articleLikesTotal.value = response.data.total || 0;
+    }
+    loadingArticleLikes.value = false;
+  } catch (error) {
+    console.error('加载我喜欢的文章失败:', error);
+    loadingArticleLikes.value = false;
   }
 };
 
@@ -556,6 +605,12 @@ const handleQuestionLikesPageChange = (page: number, size: number) => {
   questionLikesPage.value = page;
   questionLikesPageSize.value = size;
   loadMyQuestionLikes();
+};
+
+const handleArticleLikesPageChange = (page: number, size: number) => {
+  articleLikesPage.value = page;
+  articleLikesPageSize.value = size;
+  loadMyArticleLikes();
 };
 
 onMounted(() => {

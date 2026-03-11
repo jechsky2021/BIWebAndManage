@@ -200,7 +200,7 @@ export default {
     },
     performSearch() {
       if (this.searchQuery.trim()) {
-        console.log('搜索:', this.searchQuery);
+       // console.log('搜索:', this.searchQuery);
         // 导航到分类页面并传递搜索关键字
         this.$router.push({ 
           path: '/category/search', 
@@ -225,8 +225,8 @@ export default {
     checkLoginStatus() {
       this.isUserLoggedIn = !!localStorage.getItem('token');
       // 调试日志
-      console.log('登录状态检查:', this.isUserLoggedIn);
-      console.log('用户信息:', localStorage.getItem('userInfo'));
+     // console.log('登录状态检查:', this.isUserLoggedIn);
+     // console.log('用户信息:', localStorage.getItem('userInfo'));
     },
     handleLogout() {
       this.showUserDropdown = false;

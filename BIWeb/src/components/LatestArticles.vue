@@ -83,6 +83,9 @@ export default {
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    min-height: 160px;
 
     &:hover {
       transform: translateY(-2px);
@@ -93,6 +96,7 @@ export default {
       display: flex;
       gap: 12px;
       margin-bottom: 12px;
+      flex: 1;
 
       .article-icon {
         width: 40px;
@@ -116,6 +120,11 @@ export default {
           color: #333;
           margin-bottom: 6px;
           line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .article-summary {
@@ -137,6 +146,9 @@ export default {
       gap: 16px;
       font-size: 12px;
       color: #999;
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid #f0f0f0;
 
       .article-source {
         color: #ff6b6b;

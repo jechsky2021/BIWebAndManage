@@ -81,6 +81,7 @@
                     :reply-loading="replyLoading"
                     :reply-form="replyForm"
                     :topic-id="topicId"
+                    :is-logged-in="isLoggedIn"
                     @show-reply="showReplyForm"
                     @cancel-reply="cancelReply"
                     @submit-reply="handleSubmitReply"
@@ -217,9 +218,9 @@ const loadTopicDetail = async () => {
   try {
     loading.value = true
 
-    console.log('topicId.value:', topicId.value)
+   // console.log('topicId.value:', topicId.value)
     const response = await getTopicDetail({ id: topicId.value })
-    console.log('getTopicDetail response:', response)
+   // console.log('getTopicDetail response:', response)
 
     if (response.sign === '1' && response.data) {
       topic.value = response.data[0]
@@ -245,9 +246,9 @@ const loadComments = async () => {
       pageNumber: currentPage.value,
       pageSize: pageSize.value
     }
-    console.log('getCommentsByPage params:', params)
+    // console.log('getCommentsByPage params:', params)
     const response = await getCommentsByPage(params)
-    console.log('getCommentsByPage response:', response)
+    // console.log('getCommentsByPage response:', response)
     
     if (response.sign === '1' && response.data) {
       // 加载更多时追加数据，否则替换数据
@@ -318,15 +319,15 @@ const handleLike = async () => {
       uId: parsedUserInfo.id,
       tId: topicId.value
     }
-    console.log("params:",params)
+    // console.log("params:",params)
 
     // 先查询用户是否已点赞
     const checkResponse = await getUidTid(params)
-    console.log("checkResponse:",checkResponse)
+    // console.log("checkResponse:",checkResponse)
     
     if (checkResponse.sign === '1' && checkResponse.data) {
       const count = checkResponse.data[0].count || 0
-      console.log("count:",count);
+      // console.log("count:",count);
       if (count > 0) {
         // 取消点赞
         const cancelResponse = await cancelTopicLikes(params)

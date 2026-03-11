@@ -190,7 +190,7 @@ const loadQuestion = async () => {
   try {
     loading.value = true
     const response = await getQuestionDetail({ id: questionId.value })
-    console.log("ddresponse", response)
+    // console.log("ddresponse", response)
     if (response.sign === '1' && response.data) {
       question.value = response.data[0]
       UpdateQuestionPageViews({ id: questionId.value })
@@ -260,9 +260,9 @@ const handleSubmitAnswer = async () => {
       content: answerForm.value.content,
       uId: parsedUserInfo.id
     }
-    console.log("params:",params)
+    // console.log("params:",params)
     const response = await addAnswer(params)
-    console.log("response:",response)
+   // console.log("response:",response)
 
     if (response.sign === '1') {
       ElMessage.success('回答发表成功')
@@ -294,9 +294,9 @@ const handleLike = async () => {
       qId: questionId.value
     }
 
-    console.log("params:",params)
+    // console.log("params:",params)
     const checkResponse = await getUidQid(params)
-    console.log("checkResponse:",checkResponse)
+   // console.log("checkResponse:",checkResponse)
     
     if (checkResponse.sign === '1' && checkResponse.data) {
       const count = checkResponse.data[0].count || 0
@@ -362,6 +362,7 @@ const handleAdoptAnswer = async (answer: any) => {
 onMounted(() => {
   loadQuestion()
   loadAnswers()
+  
 })
 </script>
 

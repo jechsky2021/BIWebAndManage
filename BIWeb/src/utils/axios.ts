@@ -1,5 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { ElMessage } from 'element-plus';
+import router from '../router';
+
+// 标记是否正在跳转到登录页，防止重复跳转
+let isRedirectingToLogin = false;
 
 // 创建axios实例
 const service: AxiosInstance = axios.create({
@@ -15,7 +19,7 @@ service.interceptors.request.use(
   (config: any): any => {
     // 可以在这里添加token等认证信息
     const token = localStorage.getItem('token');
-    console.log('token:', token)
+   // console.log('token:', token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -35,14 +39,31 @@ service.interceptors.response.use(
   },
   (error): Promise<never> => {
 
-    if (error.response &&error.response.status === 401) {
-      ElMessage({ message: '会话过期，请重新登录', type: 'warning' })
-      localStorage.clear();
-      window.location.href = '/login'
-      return Promise.reject(new Error('会话过期'))
+    if (error.response && error.response.status === 401) {
+      // 检查本地是否有token
+      const token = localStorage.getItem('token');
+      
+      // 只有当本地有token（已登录）但收到401时才跳转到登录页
+      if (token) {
+        // 防止重复跳转
+        if (!isRedirectingToLogin) {
+          isRedirectingToLogin = true;
+          ElMessage({ message: '会话已过期，请重新登录', type: 'warning' });
+          localStorage.clear();
+          router.push('/login').then(() => {
+            // 跳转完成后重置标记
+            setTimeout(() => {
+              isRedirectingToLogin = false;
+            }, 1000);
+          });
+        }
+      }
+      // 未登录时收到401不做任何处理，静默返回错误，让前端业务逻辑处理
+      return Promise.reject(new Error('未授权'));
     }
 
-    ElMessage({ message: error.message || '网络错误', type: 'error' })
+    // 非401错误才显示错误消息
+    ElMessage({ message: error.message || '网络错误', type: 'error' });
 
     // 可以在这里统一处理错误
     return Promise.reject(error);
@@ -86,10 +107,24 @@ fileService.interceptors.response.use(
     // 处理Session-Status头
     const sessionStatus = response.headers['Session-Status'] || response.headers['session-status']
     if (sessionStatus === 'timeout') {
-      ElMessage({ message: '会话过期，请重新登录', type: 'warning' })
-      localStorage.clear();
-      window.location.href = '/login'
-      return Promise.reject(new Error('会话过期'))
+      // 检查本地是否有token
+      const token = localStorage.getItem('token');
+      
+      // 只有当本地有token（已登录）时才跳转到登录页
+      if (token) {
+        // 防止重复跳转
+        if (!isRedirectingToLogin) {
+          isRedirectingToLogin = true;
+          ElMessage({ message: '会话已过期，请重新登录', type: 'warning' });
+          localStorage.clear();
+          router.push('/login').then(() => {
+            setTimeout(() => {
+              isRedirectingToLogin = false;
+            }, 1000);
+          });
+        }
+      }
+      return Promise.reject(new Error('会话过期'));
     }
 
     return response.data

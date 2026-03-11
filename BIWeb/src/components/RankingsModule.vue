@@ -119,7 +119,7 @@ const fetchDailyArticles = async () => {
       statuss: 1,
       isRecommend: -1,
       pageNumber: 1,
-      pageSize: 5,
+      pageSize: 10,
       startTime,
       endTime
     };
@@ -152,7 +152,7 @@ const fetchWeeklyArticles = async () => {
       statuss: 1,
       isRecommend: -1,
       pageNumber: 1,
-      pageSize: 5,
+      pageSize: 10,
       startTime,
       endTime
     };
@@ -185,7 +185,7 @@ const fetchMonthlyArticles = async () => {
       statuss: 1,
       isRecommend: -1,
       pageNumber: 1,
-      pageSize: 5,
+      pageSize: 10,
       startTime,
       endTime
     };
@@ -253,7 +253,7 @@ onMounted(async () => {
   }
 
   .rankings-content {
-    min-height: 400px;
+    min-height: 860px;
 
     .loading-state {
       display: flex;

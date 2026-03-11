@@ -9,10 +9,10 @@
         </div>
         <div class="footer-links">
           <div class="link-group">
-            <h3>关于我们</h3>
-            <a href="#">公司简介</a>
-            <a href="#">联系我们</a>
-            <a href="#">加入我们</a>
+            <h3><router-link to="/about">关于我们</router-link></h3>
+            <router-link to="/about#company-intro">公司简介</router-link>
+            <router-link to="/about#contact-us">联系我们</router-link>
+            <router-link to="/about#join-us">加入我们</router-link>
           </div>
           <div class="link-group">
             <h3>帮助中心</h3>
@@ -82,9 +82,22 @@ export default {
           font-size: 16px;
           margin-bottom: 16px;
           color: #fff;
+
+          a {
+            color: inherit;
+            text-decoration: none;
+            font-size: inherit;
+            display: inline;
+            margin-bottom: 0;
+
+            &:hover {
+              color: #ff6b6b;
+            }
+          }
         }
 
-        a {
+        a,
+        router-link {
           display: block;
           color: #ccc;
           text-decoration: none;
@@ -95,6 +108,10 @@ export default {
           &:hover {
             color: #ff6b6b;
           }
+        }
+
+        router-link {
+          cursor: pointer;
         }
       }
     }

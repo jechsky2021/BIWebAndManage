@@ -9,7 +9,7 @@
             v-for="tab in tabs" 
             :key="tab.key"
             :class="['tab', { active: activeTab === tab.key }]"
-            @click="activeTab = tab.key"
+            @click="handleTabChange(tab.key)"
           >
             {{ tab.name }}
           </button>
@@ -255,7 +255,6 @@ import { Plus, Loading } from '@element-plus/icons-vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { addTopic, getTopicsByPage } from '../../api/topics';
 import { addQuestion, getQuestionsByPage } from '../../api/questions';
-import { getAllTags } from '../../api/tags';
 import { getAvatarUrl } from '../../utils/helpers';
 import dayjs from 'dayjs'
 
@@ -341,6 +340,15 @@ const createFilter = (filter: string) => {
   loadQuestions();
 };
 
+// 处理标签切换
+const handleTabChange = (tabKey: string) => {
+  activeTab.value = tabKey;
+  // 切换到美业问答标签时，如果问题列表为空则加载
+  if (tabKey === 'qa' && filterQuestion.value.length === 0) {
+    loadQuestions();
+  }
+};
+
 const loadQuestions = async () => {
   try {
     questionLoading.value = true;
@@ -362,9 +370,9 @@ const loadQuestions = async () => {
     }
     // 全部问题时不传 status 参数
 
-    console.log('getQuestionsByPage params:', params);
+    //console.log('getQuestionsByPage params:', params);
     const response = await getQuestionsByPage(params);
-    console.log('getQuestionsByPage response:', response);
+    //console.log('getQuestionsByPage response:', response);
     
     if (response.sign === '1' && response.data) {
       filterQuestion.value = response.data.lists || [];
@@ -395,21 +403,6 @@ const goToTagManage = () => {
   router.push('/tag-manage');
 };
 
-// 加载所有标签
-const loadAllTags = async () => {
-  try {
-    tagLoading.value = true;
-    const response = await getAllTags();
-    if (response.sign === '1' && response.data) {
-      allTags.value = response.data || [];
-    }
-  } catch (error) {
-    console.error('加载标签失败:', error);
-  } finally {
-    tagLoading.value = false;
-  }
-};
-
 // 加载话题数据
 const loadTopics = async () => {
   try {
@@ -419,9 +412,9 @@ const loadTopics = async () => {
       pageSize: pageSize.value
     };
 
-    console.log("params:",params)
+    // console.log("params:",params)
     const response = await getTopicsByPage(params);
-    console.log("response:",response)
+    // console.log("response:",response)
     
     if (response.sign === '1' && response.data) {
       hotTopics.value = response.data.lists || [];
@@ -558,9 +551,11 @@ const handlePostQuestion = async () => {
 };
 
 onMounted(() => {
-  loadTopics();
-  loadQuestions();
-  loadAllTags();
+   
+    loadTopics();
+  
+  // 默认显示热门话题，不加载问题列表
+  // 问题列表会在切换到美业问答标签时加载
 });
 </script>
 

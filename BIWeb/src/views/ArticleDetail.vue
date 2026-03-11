@@ -30,16 +30,17 @@
 
               <!-- 分享和点赞 -->
               <div class="article-actions">
-                <button class="like-btn">
-                  <span class="like-icon">👍</span>
-                  <span class="like-count">567</span>
+                <button class="like-btn" @click="handleLike">
+                  <span class="like-icon" :class="{ 'liked': isLiked }">👍</span>
+                  <span class="like-count">{{ articleDetail.likes }}</span>
                 </button>
                 <div class="share-btn">
-                  <span>分享</span>
-                  <div class="share-options">
-                    <span class="share-item">微信</span>
-                    <span class="share-item">微博</span>
-                    <span class="share-item">QQ</span>
+                  <span @click="toggleShareOptions">分享</span>
+                  <div class="share-options" v-show="showShareOptions">
+                    <!-- <span class="share-item" @click="shareToWechat">微信</span> -->
+                    <span class="share-item" @click="shareToWeibo">微博</span>
+                    <span class="share-item" @click="shareToQQ">QQ</span>
+                    <span class="share-item" @click="copyLink">复制链接</span>
                   </div>
                 </div>
               </div>
@@ -69,7 +70,7 @@
           </div>
           
           <div class="sidebar">
-            <RankingsModule @tabChange="handleTabChange" />
+            <RankingsModule   />
           </div>
         </div>
       </div>
@@ -77,16 +78,18 @@
 
   </div>
 </template>
-0
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { getArticlesById, getArticlesByPage } from '../api/articles';
+import { useRoute, useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import { getArticlesById, getArticlesByPage, getUidAid, updateArticleLikes, cancelArticleLikes } from '../api/articles';
 import RankingsModule from '../components/RankingsModule.vue';
 import dayjs from 'dayjs';
 
 
 const route = useRoute();
+const router = useRouter();
 const articleId = computed(() => route.params.id || '1');
 const articleDetail = ref<any>({
   id: 0,
@@ -98,6 +101,7 @@ const articleDetail = ref<any>({
   content: '',
   statuss: 0,
   pageViews: 0,
+  likes: 0,
   createTime: ''
 });
 const relatedArticles = ref<any[]>([]);
@@ -105,15 +109,103 @@ const loading = ref(false);
 const loadingRelated = ref(false);
 const colors = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#1a535c', '#f7b801', '#7209b7', '#4cc9f0', '#f72585'];
 
+// 点赞功能
+const isLiked = ref(false);
+
+// 分享功能
+const showShareOptions = ref(false);
+
+const toggleShareOptions = () => {
+  showShareOptions.value = !showShareOptions.value;
+};
+
+const getShareUrl = () => {
+  return window.location.href;
+};
+
+const getShareTitle = () => {
+  return articleDetail.value.title || '美业资讯文章';
+};
+
+const shareToWechat = () => {
+  showShareOptions.value = false;
+  ElMessage.info('请使用微信扫描二维码分享');
+  // 这里可以添加生成微信分享二维码的逻辑
+};
+
+const shareToWeibo = () => {
+  showShareOptions.value = false;
+  const url = encodeURIComponent(getShareUrl());
+  const title = encodeURIComponent(getShareTitle());
+  const weiboUrl = `http://service.weibo.com/share/share.php?url=${url}&title=${title}`;
+  window.open(weiboUrl, '_blank', 'width=600,height=400');
+};
+
+const shareToQQ = () => {
+  showShareOptions.value = false;
+  const url = encodeURIComponent(getShareUrl());
+  const title = encodeURIComponent(getShareTitle());
+  const qqUrl = `https://connect.qq.com/widget/shareqq/index.html?url=${url}&title=${title}`;
+  window.open(qqUrl, '_blank', 'width=600,height=400');
+};
+
+const copyLink = async () => {
+  showShareOptions.value = false;
+  const url = getShareUrl();
+  
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(url);
+      ElMessage.success('链接已复制到剪贴板');
+    } else {
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          ElMessage.success('链接已复制到剪贴板');
+        } else {
+          throw new Error('复制失败');
+        }
+      } catch (err) {
+        ElMessage.error('复制失败，请手动复制');
+      } finally {
+        document.body.removeChild(textArea);
+      }
+    }
+  } catch (err) {
+    ElMessage.error('复制失败，请手动复制');
+  }
+};
+
+// 点击外部关闭分享选项
+const handleClickOutside = (event: MouseEvent) => {
+  const shareBtn = document.querySelector('.share-btn');
+  if (shareBtn && !shareBtn.contains(event.target as Node)) {
+    showShareOptions.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
 const fetchArticleDetail = async () => {
   try {
     loading.value = true;
     const data = await getArticlesById({
       id: Number(articleId.value) 
     });
-    console.log('文章详情:', data);
+   // console.log('文章详情:', data);
     articleDetail.value = data.data[0] || articleDetail.value;
-    console.log('文章详情:', articleDetail.value);
+   // console.log('文章详情:', articleDetail.value);
   } catch (error) {
     console.error('获取文章详情失败:', error);
     // 可以添加错误处理，比如显示错误提示
@@ -127,10 +219,6 @@ const formatDate = (date: string) => {
   return dayjs(date).format('YYYY-MM-DD HH:mm:ss');
 };
 
-const handleTabChange = (tab: string) => {
-  console.log('Tab changed to:', tab);
-  // 可以在这里添加额外的逻辑，比如统计用户行为等
-};
 
 const fetchRelatedArticles = async () => {
   try {
@@ -142,12 +230,12 @@ const fetchRelatedArticles = async () => {
       pageNumber: 1,
       pageSize: 3
     });
-    console.log('相关推荐:', data);
+    // console.log('相关推荐:', data);
     if (data.data && data.data.lists) {
       relatedArticles.value = data.data.lists.map((item: any) => ({
         id: item.id,
         title: item.title || '暂无标题',
-        introduce: item.introduce || item.content?.substring(0, 100) || '暂无简介'
+        introduce: item.introduce  || '暂无简介'
       }));
     }
   } catch (error) {
@@ -157,9 +245,101 @@ const fetchRelatedArticles = async () => {
   }
 };
 
+// 检查用户是否登录
+const isLoggedIn = () => {
+  return localStorage.getItem('token') !== null;
+};
+
+// 检查用户是否已点赞
+const checkUserLike = async () => {
+  if (!isLoggedIn()) return;
+  
+  try {
+   const userInfo = localStorage.getItem('userInfo')
+    if (!userInfo) {
+      ElMessage.warning('请先登录')
+      return
+    }
+
+    const parsedUserInfo = JSON.parse(userInfo)
+    if (!parsedUserInfo.id) {
+      ElMessage.error('用户信息不存在，请重新登录');
+      router.push('/login');
+      return
+    }
+    
+    const response = await getUidAid({
+      uId: Number(parsedUserInfo.id),
+      aId: Number(articleId.value)
+    });
+    
+    const hasLiked = response.data[0].count > 0;
+    return hasLiked;
+  } catch (error) {
+    console.error('检查点赞状态失败:', error);
+  }
+};
+
+// 处理点赞
+const handleLike = async () => {
+  if (!isLoggedIn()) {
+    router.push('/login');
+    return;
+  }
+  
+  const userInfo = localStorage.getItem('userInfo')
+    if (!userInfo) {
+      ElMessage.warning('请先登录')
+      return
+    }
+
+  const parsedUserInfo = JSON.parse(userInfo)
+  const userId = parsedUserInfo.id;
+  if (!userId) {
+    ElMessage.error('用户信息不存在，请重新登录');
+    router.push('/login');
+    return;
+  }
+  
+  try {
+    // 检查用户是否已点赞
+    const hasLiked = await checkUserLike();
+    // console.log('hasLiked:', hasLiked);
+      if (hasLiked) {
+        // 取消点赞
+        await cancelArticleLikes({
+          uId: Number(userId),
+          aId: Number(articleId.value)
+        });
+        ElMessage.success('取消点赞成功');
+        isLiked.value = false;
+        // 更新点赞数
+        if (articleDetail.value.likes) {
+          articleDetail.value.likes = Math.max(0, articleDetail.value.likes - 1);
+        }
+      } else {
+        // 点赞
+        await updateArticleLikes({
+          uId: Number(userId),
+          aId: Number(articleId.value)
+        });
+        ElMessage.success('点赞成功');
+        isLiked.value = true;
+        // 更新点赞数
+        if (articleDetail.value.likes !== undefined) {
+          articleDetail.value.likes = articleDetail.value.likes + 1;
+        }
+      }
+    
+  } catch (error) {
+    console.error('点赞操作失败:', error);
+    ElMessage.error('操作失败，请稍后重试');
+  }
+};
+
 onMounted(() => {
   // 加载文章数据
-  console.log('加载文章ID:', articleId.value);
+  // console.log('加载文章ID:', articleId.value);
   fetchArticleDetail();
   // 加载相关推荐
   fetchRelatedArticles();
@@ -371,8 +551,7 @@ onMounted(() => {
     border-top: 1px solid #f0f0f0;
     border-bottom: 1px solid #f0f0f0;
 
-    .like-btn,
-    .share-btn {
+    .like-btn {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -387,10 +566,31 @@ onMounted(() => {
         background-color: #fff;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
+
+      .like-icon {
+        font-size: 18px;
+        transition: all 0.3s ease;
+
+        &.liked {
+          color: #ff6b6b;
+          transform: scale(1.2);
+        }
+      }
     }
 
     .share-btn {
       position: relative;
+      padding: 8px 16px;
+      background-color: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
 
       .share-options {
         position: absolute;
@@ -404,25 +604,19 @@ onMounted(() => {
         flex-direction: column;
         gap: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
+        width: 150px;
+        margin-bottom: 8px;
 
         .share-item {
           padding: 6px 12px;
           cursor: pointer;
           border-radius: 4px;
+          text-align: center;
 
           &:hover {
             background-color: #f8f9fa;
           }
         }
-      }
-
-      &:hover .share-options {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(-8px);
       }
     }
   }
@@ -485,23 +679,30 @@ onMounted(() => {
           flex: 1;
 
           h4 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            line-height: 1.4;
-          }
-
-          p {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.6;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
-          }
+              font-size: 16px;
+              font-weight: 600;
+              color: #333;
+              margin-bottom: 8px;
+              line-height: 1.4;
+              display: -webkit-box;
+              -webkit-line-clamp: 1;
+              -webkit-box-orient: vertical;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          
+            p {
+              font-size: 14px;
+              color: #666;
+              line-height: 1.6;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
         }
       }
     }

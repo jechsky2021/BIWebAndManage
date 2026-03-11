@@ -14,7 +14,7 @@
         </div>
         <div class="item-info">
           <h4 class="item-title">{{ item.title }}</h4>
-          <p class="item-desc">{{ item.content || '暂无描述' }}</p>
+          <p class="item-desc">{{ stripHtml(item.content) || '暂无描述' }}</p>
           <div v-if="type === 'question' || type === 'question-like'" class="item-meta">
             <span class="item-status" :class="getStatusClass(item.status)">
               {{ getStatusText(item.status) }}
@@ -45,6 +45,12 @@
 import { computed } from 'vue'
 import dayjs from 'dayjs'
 
+// 过滤 HTML 标签
+const stripHtml = (html: string | undefined): string => {
+  if (!html) return ''
+  return html.replace(/<[^>]*>/g, '')
+}
+
 interface Item {
   id: string | number
   title: string
@@ -57,7 +63,7 @@ const props = withDefaults(defineProps<{
   title: string
   items: Item[]
   loading: boolean
-  type: 'topic' | 'question' | 'topic-like' | 'question-like'
+  type: 'topic' | 'question' | 'topic-like' | 'question-like' | 'article-like'
   emptyText: string
   total?: number
   currentPage?: number
@@ -96,6 +102,9 @@ const getColorIndex = (id: string | number) => {
 const getItemLink = (item: Item) => {
   if (props.type === 'question' || props.type === 'question-like') {
     return `/question/${item.id}`
+  }
+  if (props.type === 'article-like') {
+    return `/article/${item.id}`
   }
   return `/topic/${item.id}`
 }
@@ -147,7 +156,7 @@ const handleCurrentChange = (page: number) => {
   background-color: #fff;
   border-radius: 8px;
   padding: 30px;
-  margin: 20px 0;
+  margin-top: 3px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
   .section-title {

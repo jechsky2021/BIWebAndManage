@@ -123,7 +123,7 @@ const activeViewMode = ref('list');
 const loading = ref(false);
 
 const handleTabChange = (tab: string) => {
-  console.log('Tab changed to:', tab);
+  // console.log('Tab changed to:', tab);
   // 可以在这里添加额外的逻辑，比如统计用户行为等
 };
 

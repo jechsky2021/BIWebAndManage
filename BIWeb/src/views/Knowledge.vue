@@ -22,7 +22,6 @@
             :active-filter="activeFilter"
             :tags="getCurrentTags()"
             @update:activeFilter="activeFilter = $event"
-            @tag-click="handleTagClick"
           />
         </div>
 
@@ -54,12 +53,12 @@ const fetchCategories = async ()=>{
       pageSize: 20
     });
 
-    console.log('获取分类数据响应:', response);
+    // console.log('获取分类数据响应:', response);
 
     if (response.data) {
       // 尝试不同的响应结构
       const items = response.data.lists || response.data.items || [];
-      console.log('分类数据:', items);
+      // console.log('分类数据:', items);
       
       if (items.length > 0) {
         categories.value = items.map((item: any) => ({
@@ -67,7 +66,7 @@ const fetchCategories = async ()=>{
           atName: item.atName || item.AtName || item.name || item.Name || '未分类'
         })).filter((item: any) => item.articleType); // 过滤掉没有articleType的项
         
-        console.log('处理后的分类:', categories.value);
+       // console.log('处理后的分类:', categories.value);
       }
     }
   } catch (error) {
@@ -79,7 +78,7 @@ const fetchCategories = async ()=>{
 const fetchKnowledgeData = async (categoryKey: string) => {
   try {
     loading.value = true;
-    console.log(`获取${categoryKey}知识数据:`, categoryKey);
+    // console.log(`获取${categoryKey}知识数据:`, categoryKey);
     const response = await getArticlesByPage({
       articleType: categoryKey || -1,
       statuss: 1,
@@ -89,7 +88,7 @@ const fetchKnowledgeData = async (categoryKey: string) => {
       pageSize: 20
     });
     
-    console.log(`获取${categoryKey}知识数据:`, response);
+   // console.log(`获取${categoryKey}知识数据:`, response);
     
     if (response.data && response.data.lists) {
       const articles = response.data.lists.map((item: any) => ({
@@ -102,9 +101,9 @@ const fetchKnowledgeData = async (categoryKey: string) => {
         pageViews: item.pageViews || 0
       }));
       
-      console.log('处理后的文章数据:', articles);
+      // console.log('处理后的文章数据:', articles);
       knowledgeData.value = articles;
-      console.log(`categories:`, categories.value);
+     // console.log(`categories:`, categories.value);
 
     }
   } catch (error) {
@@ -117,18 +116,6 @@ const fetchKnowledgeData = async (categoryKey: string) => {
 // 烫发标签
 const permTags = ['冷烫', '热烫', '数码烫', '陶瓷烫', '离子烫', '烫发护理', '烫发设计', '烫发药水'];
 
-// 染发标签
-const hairDyeingTags = ['漂染', '染发色彩', '白发覆盖', '染发护理', '渐变染', '挑染', '染发工具', '染发产品'];
-
-// 洗发标签
-const shampooTags = ['洗发水选择', '护发素', '头皮护理', '干性发质', '油性发质', '受损发质', '洗发频率', '深层清洁'];
-
-// 剪发标签
-const haircutTags = ['发型设计', '剪发技巧', '层次剪发', '男士发型', '儿童剪发', '工具使用', '流行趋势', '艺术造型'];
-
-// 吹发标签
-const blowDryTags = ['吹风机使用', '卷发造型', '直发造型', '热损伤防护', '造型产品', '专业手法', '吹干技巧', '持久造型'];
- 
 
 // 监听分类变化，获取对应数据
 watch(activeCategory, (newCategory) => {
@@ -141,15 +128,15 @@ watch(activeCategory, (newCategory) => {
 onMounted(async () => {
   await fetchCategories();
   // 设置默认分类
-  console.log(`categories:`, categories.value);
+  // console.log(`categories:`, categories.value);
   if (categories.value.length > 0) {
     const firstCategory = categories.value[0];
-    console.log(`第一个分类:`, firstCategory);
+   // console.log(`第一个分类:`, firstCategory);
     // 确保类型一致
     activeCategory.value = firstCategory.articleType;
-    console.log(`activeCategory.value:`, activeCategory.value);
+   // console.log(`activeCategory.value:`, activeCategory.value);
   } else {
-    console.log('没有获取到分类数据');
+    // console.log('没有获取到分类数据');
     // 如果没有分类数据，设置一个默认值
     activeCategory.value = '1';
   }
@@ -160,17 +147,6 @@ const getCurrentTags = () => {
   // 简单返回烫发标签作为默认，后续可以根据实际需求映射
   return permTags;
 };
-
-// 处理标签点击事件
-const handleTagClick = (tag: string) => {
-  console.log('点击了标签:', tag);
-  // 这里可以添加标签点击的具体逻辑，比如：
-  // 1. 筛选包含该标签的文章
-  // 2. 跳转到标签相关的页面
-  // 3. 显示该标签下的更多内容
-  // 4. 添加到搜索过滤器
-};
-
 
 </script>
 

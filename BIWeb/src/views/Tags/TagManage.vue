@@ -115,7 +115,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus, Search } from '@element-plus/icons-vue';
 import type { FormInstance, FormRules } from 'element-plus';
@@ -127,8 +126,6 @@ import {
   getTagByName
 } from '../../api/tags';
 import dayjs from 'dayjs';
-
-const router = useRouter();
 
 // 列表数据
 const tagList = ref<any[]>([]);
