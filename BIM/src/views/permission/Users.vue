@@ -335,9 +335,9 @@ const submitResetPassword = async () => {
       id: currentResetUser.value.id,
       uPasswords: aesCbcEncrypt(resetPasswordForm.uPassword)
     }
-    console.log("重置密码参数:", params)
+    // console.log("重置密码参数:", params)
     const response = await updatePWD(params)
-    console.log("重置密码响应:", response)
+    // console.log("重置密码响应:", response)
     
     if (response.sign === '1') {
       ElMessage.success('密码重置成功')
@@ -376,10 +376,10 @@ const assignRoles = async (row: any) => {
   currentAssignUser.value = row
   selectedRoles.value = []
   try {
-    console.log('当前用户:', currentAssignUser.value)
+    // console.log('当前用户:', currentAssignUser.value)
     // 加载所有角色
     const response = await selectUserRole({id: currentAssignUser.value.id})
-    console.log('获取用户角色响应:', response)
+   // console.log('获取用户角色响应:', response)
     if (response.sign === '1' && response.data) {
 
       const roleList = response.data || []
@@ -389,7 +389,7 @@ const assignRoles = async (row: any) => {
         id: Number(item.id), 
         rName: item.rName
       }))
-      console.log('格式化后的角色数据:', formattedRoles);
+      // console.log('格式化后的角色数据:', formattedRoles);
 
       roleTree.value = formattedRoles
       
@@ -397,7 +397,7 @@ const assignRoles = async (row: any) => {
       const existingRoleIds = formattedRoles
         .filter((item: { isChecked: boolean }) => item.isChecked === true)
         .map((item: any) => item.id)
-      console.log('用户已有的角色ID:', existingRoleIds)
+      // console.log('用户已有的角色ID:', existingRoleIds)
       
       selectedRoles.value = existingRoleIds
       
@@ -433,14 +433,14 @@ const saveAssignRoles = async () => {
       const checkedNodes = treeRef.value.getCheckedNodes(false, true)
       selectedRoles.value = checkedNodes.map((item: any) => Number(item.id))
     }
-    console.log('当前用户:', currentAssignUser.value);
-    console.log('选中的角色ID:', selectedRoles.value);
+    // console.log('当前用户:', currentAssignUser.value);
+    //console.log('选中的角色ID:', selectedRoles.value);
     // 调用API保存角色分配
     const response = await addUserRole({
       id: currentAssignUser.value.id,
       roleIds: selectedRoles.value
     })
-    console.log("角色分配响应:", response);
+    // console.log("角色分配响应:", response);
     
     if (response.sign === '1') {
       ElMessage.success('角色分配成功')
@@ -473,7 +473,7 @@ const fetchUsers = async () => {
       pageSize: pagination.pageSize
     }
     const response = await getUserInfo(params)
-    console.log("response:", response)
+   // console.log("response:", response)
     // 更新用户列表和分页信息
     if(response.sign==="1"){
       usersList.value = Array.isArray(response.data.lists) ? response.data.lists : []
@@ -515,18 +515,18 @@ const submitAddUser = async () => {
     if (!isEditMode.value) {
       delete params.id
 
-      console.log("新增用户参数:", params)
+     // console.log("新增用户参数:", params)
       const response = await addUserApi(params)
-      console.log("新增用户响应:", response)
+     // console.log("新增用户响应:", response)
       if(response.sign!=="1"){
          ElMessage.error(`用户添加失败: ${response.msg || '未知错误'}`);
          return;
       }
     }
     else{
-      console.log("更新用户参数:", params)
+     // console.log("更新用户参数:", params)
       const response = await updateUserApi(params)
-      console.log("更新用户响应:", response)
+     // console.log("更新用户响应:", response)
       if(response.sign!=="1"){
          ElMessage.error(`用户更新失败: ${response.msg || '未知错误'}`);
          return;

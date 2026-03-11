@@ -279,7 +279,7 @@ const editorOptions = ref({
 
 // 上传图片
 const uploadImage = async (event) => {
-console.log("uploadImage");
+// console.log("uploadImage");
   const file = event.target.files[0]
   if (!file) return
   
@@ -310,16 +310,16 @@ console.log("uploadImage");
       fileName: `${baseImgFolder}\/${Date.now().toString()}`,
       base64Str:  await getBase64(file)
     }
-    console.log("request",request)
+    // console.log("request",request)
     const response = await saveGoodsPic(request)
-    console.log("response",response)
+   // console.log("response",response)
     
     if(response.data.code === '0'){
       ElMessage.success('图片上传成功')
       // 删除 loading 图片，获取图片原始尺寸后插入真实图片
       const imagePath = response.data.data
       const imageUrl = `${pictureServerBaseUrl}${imagePath}`
-      console.log('图片完整URL:', imageUrl)
+     // console.log('图片完整URL:', imageUrl)
       
       // 获取图片原始尺寸
       const img = new Image()
@@ -327,7 +327,7 @@ console.log("uploadImage");
       img.onload = () => {
         const width = img.naturalWidth
         const height = img.naturalHeight
-        console.log('图片原始尺寸:', width, 'x', height)
+        // console.log('图片原始尺寸:', width, 'x', height)
         
         // 计算显示尺寸（最大宽度限制为100%，保持比例）
         const maxWidth = 500
@@ -463,9 +463,9 @@ const loadArticle = async () => {
 
   loading.value = true
   try {
-    console.log('articleId:', articleId)
+    // console.log('articleId:', articleId)
     const response = await getDetailById({id:articleId})
-    console.log('response:', response)
+   // console.log('response:', response)
     if (response.sign === '1') {
       const data = response.data[0];
       Object.assign(form, data)
@@ -481,7 +481,7 @@ const loadArticle = async () => {
           if (data.content) {
             quill.clipboard.dangerouslyPasteHTML(data.content)
           }
-          console.log('Editor content set successfully')
+          // console.log('Editor content set successfully')
         }
       }, 100)
 
@@ -497,7 +497,7 @@ const loadArticle = async () => {
 
 // 提交表单
 const handleSubmit = async () => {
-  console.log('form before submit:', form)
+  // console.log('form before submit:', form)
   try {
     // 确保富文本编辑器内容已同步
     if (editorRef.value && editorRef.value.getQuill) {
@@ -508,11 +508,11 @@ const handleSubmit = async () => {
       }
     }
     
-    console.log('form before validate:', form)
+    // console.log('form before validate:', form)
     await formRef.value.validate()
     loading.value = true
     
-    console.log('form after validate:', JSON.stringify(form))
+    // console.log('form after validate:', JSON.stringify(form))
     const params = {
       ...form,
       statuss: Number(form.statuss),
@@ -521,9 +521,9 @@ const handleSubmit = async () => {
 
     if (isEditMode.value) {
       params.id = route.params.id
-      console.log('params:', params)
+      // console.log('params:', params)
       const response = await updateArticle(params)
-      console.log('response:', response)
+      // console.log('response:', response)
       if(response.sign !== '1'){
         ElMessage.error(`文章操作失败: ${response.msg || '未知错误'}`)
         return
@@ -531,9 +531,9 @@ const handleSubmit = async () => {
     }
     else{
       delete params.id
-      console.log("params:",params)
+      // console.log("params:",params)
       const response = await addArticle(params)
-      console.log('response:', response)
+      // console.log('response:', response)
       if(response.sign !== '1'){
         ElMessage.error(`文章操作失败: ${response.msg || '未知错误'}`)
         return

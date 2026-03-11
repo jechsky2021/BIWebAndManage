@@ -287,7 +287,7 @@ const fetchMenuList = async () => {
     
     // 调用API获取菜单列表
     const response = await getAllMenus(params)
-    console.log('获取菜单列表响应11:', response)
+    // console.log('获取菜单列表响应11:', response)
     // 更新菜单列表数据
     if (response && response.sign === '1') {
       menuList.value = Array.isArray(response.data) ? response.data : []
@@ -406,18 +406,18 @@ const saveMenu = async () => {
     }
     if(!isEditMode.value) {
       delete params.id
-      console.log('params:', params)
+     // console.log('params:', params)
       const response = await addMenuApi(params)
-      console.log('response:', response);
+      //console.log('response:', response);
       if(response.sign !== '1'){
         ElMessage.error(`菜单操作失败: ${response.msg || '未知错误'}`)
         return
       }
     }
     else{
-      console.log('params:', params)
+     // console.log('params:', params)
       const response = await updateMenuApi(params)
-      console.log('response:', response);
+      //console.log('response:', response);
       if(response.sign !== '1'){
         ElMessage.error(`菜单操作失败: ${response.msg || '未知错误'}`)
         return

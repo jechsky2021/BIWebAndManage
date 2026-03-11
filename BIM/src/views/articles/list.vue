@@ -226,7 +226,7 @@ const buildHierarchicalCategories = (categoriesList) => {
 
 // 导航到表单页
 const navigateToForm = (id) => {
-  console.log("id:",id)
+  // console.log("id:",id)
   if (id) {
     router.push(`/articles/form/${id}`)
   } else {
@@ -259,7 +259,7 @@ const handleToggleStatus = async (article) => {
       id: article.id,
       statuss: newStatus
     })
-    console.log("response:",response)
+    // console.log("response:",response)
     if (response.sign !== '1') {
       ElMessage.error(response.msg || '状态切换失败')
       return
@@ -308,9 +308,9 @@ const handleCurrentChange = (current) => {
 // 获取分类列表
 const fetchCategories = async () => {
   try {
-    console.log("获取分类列表")
+    // console.log("获取分类列表")
     const data = await getArticleTypeByPage({ pageNumber: 1, pageSize: 100 })
-    console.log("data:",data)
+   // console.log("data:",data)
     const categoriesList = data.data.lists || []
     categories.value = categoriesList
     
@@ -337,9 +337,9 @@ const fetchArticles = async () => {
       params.startTime = formatDate(searchForm.dateRange[0])
       params.endTime = formatDate(searchForm.dateRange[1])
     }
-    console.log("params:",params)
+    // console.log("params:",params)
     const data = await getArticleByPage(params)
-    console.log("data:",data)
+   // console.log("data:",data)
     articles.value = data.data.lists || []
     total.value = data.data.total || 0
   } catch (error) {

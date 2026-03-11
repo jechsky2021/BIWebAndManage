@@ -174,7 +174,7 @@ const isEditMode = computed(() => !!form.id)
 
 // 打开表单对话框
 const openFormDialog = async (row) => {
-  console.log('row:', row)
+  // console.log('row:', row)
   if (row) {
     // 编辑模式
     form.id = row.id
@@ -241,9 +241,9 @@ const handleSubmit = async () => {
     dialogLoading.value = true
 
     if (isEditMode.value) {
-      console.log('form:', form)
+      // console.log('form:', form)
       const response = await updateArT(form)
-      console.log('response:', response)
+      //console.log('response:', response)
       if (response.sign !== '1') {
         ElMessage.error(response.msg || '操作失败')
         return
@@ -251,9 +251,9 @@ const handleSubmit = async () => {
     }
     else {
       delete form.id
-      console.log("form:", form)
+     // console.log("form:", form)
       const response = await addArT(form)
-      console.log('response:', response)
+      // console.log('response:', response)
       if (response.sign !== '1') {
         ElMessage.error(response.msg || '操作失败')
         return
@@ -368,7 +368,7 @@ const flattenHierarchicalCategories = (categories, depth = 0) => {
 
 // 获取分类列表
 const fetchArticleTypes = async () => {
-  console.log('fetchArticleTypes')
+ // console.log('fetchArticleTypes')
   loading.value = true
   try {
     const params = {
@@ -376,9 +376,9 @@ const fetchArticleTypes = async () => {
       pageSize: pagination.pageSize,
       atName: searchForm.atName
     }
-    console.log('params:', params)
+   // console.log('params:', params)
     const response = await getArticleTypeByPage(params)
-    console.log('response:', response)
+   // console.log('response:', response)
     const data = response.data || {}
 
     const categories = data.lists || []
@@ -397,7 +397,7 @@ const fetchArticleTypes = async () => {
 
 // 初始化
 onMounted(() => {
-  console.log('onMounted')
+  // console.log('onMounted')
   fetchArticleTypes()
   fetchAllArticleTypes() // 预先获取所有分类
 })

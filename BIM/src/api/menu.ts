@@ -70,7 +70,7 @@ export const convertToTree = (menuList: MenuItem[]): MenuItem[] => {
         }
       } else if (!parent) {
         // 父节点不存在时添加调试日志
-        console.log(`Parent not found for menu ${id} with fatherId ${fatherId}`)
+       // console.log(`Parent not found for menu ${id} with fatherId ${fatherId}`)
       }
     }
   })

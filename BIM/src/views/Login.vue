@@ -89,9 +89,9 @@ const handleLogin = async () => {
       uPasswords: encrypteduPasswords
     }
     // 调用登录API
-    console.log("登录参数:", params)
+    // console.log("登录参数:", params)
     const response = await login(params)
-    console.log("登录响应:", response)
+    // console.log("登录响应:", response)
     
     if (response.sign === "1") {
       userStore.setToken(response.data.token || '')
@@ -104,18 +104,18 @@ const handleLogin = async () => {
       // 获取菜单列表并提取权限路由
       try {
         const menuList = await getMenuList()
-        console.log('获取到的菜单列表:', menuList)
+        // console.log('获取到的菜单列表:', menuList)
         
         // 从菜单中提取所有有效的路由路径作为权限
         const permissions = extractPermissions(menuList)
-        console.log('提取的权限列表:', permissions)
+       // console.log('提取的权限列表:', permissions)
         
         // 设置权限到store
         userStore.setPermissions(permissions)
         
         // 找到第一个可访问的路由路径
         const firstAccessiblePath = getFirstAccessiblePath(permissions)
-        console.log('第一个可访问路径:', firstAccessiblePath)
+       // console.log('第一个可访问路径:', firstAccessiblePath)
         
         loading.value = false
         router.push(firstAccessiblePath)

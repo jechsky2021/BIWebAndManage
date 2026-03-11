@@ -40,7 +40,7 @@ export const hasPermission = (path: string, permissions: string[]): boolean => {
   
   // 2. 然后尝试路径模式匹配（支持动态路由）
   for (const permission of permissions) {
-    console.log('检查模式:', permission)
+    // console.log('检查模式:', permission)
     if (matchPathPattern(permission, path)) {
       return true
     }

@@ -95,7 +95,7 @@ const loadMenuData = async () => {
   try {
     // 调用API获取菜单数据
     const menuList = await getMenuList()
-    console.log('获取到的菜单列表:', menuList)
+    // console.log('获取到的菜单列表:', menuList)
     
     
     // 将新菜单添加到菜单列表
@@ -104,7 +104,7 @@ const loadMenuData = async () => {
     // 将扁平菜单数据转换为树形结构
     menuData.value = convertToTree(updatedMenuList)
 
-    console.log('转换后的树形菜单:', menuData.value)
+   // console.log('转换后的树形菜单:', menuData.value)
     
   } catch (error) {
     console.error('加载菜单失败:', error)

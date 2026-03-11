@@ -296,7 +296,7 @@ const  assignPermissions =async (row: any) => {
   // 加载真实菜单树数据
   await fetchPermissionTree()
 
-  console.log("角色ID:", selectedRole.value.id)
+ // console.log("角色ID:", selectedRole.value.id)
   const response = await getMenuByRoleId({id: selectedRole.value.id});
 
   // 检查响应状态并设置选中权限
@@ -354,7 +354,7 @@ const savePermissions = async () => {
       // 第一个参数false表示获取所有选中节点，而不仅是叶子节点
       // 第二个参数true表示包括半选节点
       const checkedNodes = treeRef.value.getCheckedNodes(false, true)
-      console.log("所有选中的节点:", checkedNodes)
+     // console.log("所有选中的节点:", checkedNodes)
         
       checkedIds = checkedNodes.map((item: any) => Number(item.id))
     } else {
@@ -377,11 +377,11 @@ const savePermissions = async () => {
       menuIds: checkedIds
     }
     
-    console.log("分配的权限ID列表:", checkedIds)
-    console.log("请求参数:", params);
+    // console.log("分配的权限ID列表:", checkedIds)
+   // console.log("请求参数:", params);
     // 调用API保存权限分配
     const response = await addRoleMenuInfo(params)
-    console.log("分配权限响应:", response)
+   // console.log("分配权限响应:", response)
     
     // 检查响应状态
     if (response.sign === '1') {
@@ -444,18 +444,18 @@ const saveRole = async () => {
     // 如果是新增操作，删除id字段
     if (!isEditMode.value) {
       delete params.id
-      console.log("新增参数:", params)
+     // console.log("新增参数:", params)
       const Response = await addRoleApi(params)
-      console.log("新增响应:", Response)
+     // console.log("新增响应:", Response)
       // 检查响应状态
       if (Response.sign !== '1') {
         ElMessage.error(`角色添加失败: ${Response.msg || '未知错误'}`)
         return
       }
     } else {
-      console.log("编辑参数:", params)
+     // console.log("编辑参数:", params)
       const Response = await updateRoleApi(params)
-      console.log("编辑响应:", Response)
+      // console.log("编辑响应:", Response)
       // 检查响应状态
       if (Response.sign !== '1') {
         ElMessage.error(`角色编辑失败: ${Response.msg || '未知错误'}`)
@@ -547,7 +547,7 @@ const fetchRolesList = async () => {
     
     // 调用API获取角色列表
     const response = await getRoleList(params)
-    console.log('获取角色列表响应:', response)
+   // console.log('获取角色列表响应:', response)
     
     // 更新角色列表数据
     if (response.sign === '1') {

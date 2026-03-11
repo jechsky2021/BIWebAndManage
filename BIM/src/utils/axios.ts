@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '../stores'
 
-console.log('VITE_API_BASE_URL:', (import.meta as any).env.VITE_API_BASE_URL)
+// console.log('VITE_API_BASE_URL:', (import.meta as any).env.VITE_API_BASE_URL)
 const service = axios.create({
   baseURL: `${(import.meta as any).env.VITE_API_BASE_URL || '/api'}`,
   timeout: 50000,
@@ -15,7 +15,7 @@ const service = axios.create({
 service.interceptors.request.use(
   (config) => {
     const userStore = useUserStore()
-    console.log('token:', userStore.token)
+    // console.log('token:', userStore.token)
     if (userStore.token) {
       //config.headers["x-auth-token"] = userStore.token
       config.headers.Authorization = `Bearer ${userStore.token}`

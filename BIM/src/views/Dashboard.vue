@@ -96,8 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, onMounted } from 'vue'
 import { Money, ShoppingCart, Wallet, Calendar } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 
@@ -122,19 +121,6 @@ const stats = ref({
   todayWxOrderCount: 0,//今日微信支付总订单数
   todayBookkingOrderCount: 0//今日额度支付总订单数
 })
-
-
-// 用户消费统计数据
-const userConsumptionStats = ref([])
-
-// 分页信息
-const pagination = reactive({
-  currentPage: 1,
-  pageSize: 10,
-  total: 0
-})
-
-
 
 
 // 格式化货币

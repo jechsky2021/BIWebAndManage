@@ -20,7 +20,7 @@ const router = useRouter()
 const goHome = () => {
   const userStore = useUserStore()
   const permissions = userStore.permissions
-  console.log('权限列表:', permissions)
+  // console.log('权限列表:', permissions)
   router.push(`${permissions[0]}`)
 }
 </script>

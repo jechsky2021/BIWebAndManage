@@ -10,7 +10,7 @@ export default defineConfig({
     proxy: {
       // 配置API代理
       '/api': {
-        target: 'http://localhost:5247', //http://106.14.20.120', // 后端服务器地址 https://tevv37568542.vicp.fun
+        target: 'http://web.hairpa.com:5000', //http://106.14.20.120', // 后端服务器地址 https://tevv37568542.vicp.fun
         changeOrigin: true, // 允许跨域
         rewrite: (path) => path.replace(/^\/api/, ''), // 移除/api前缀
         secure: false, // 忽略HTTPS证书验证（如果目标服务器使用HTTPS）
