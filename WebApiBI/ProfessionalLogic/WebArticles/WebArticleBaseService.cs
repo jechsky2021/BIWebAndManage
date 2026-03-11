@@ -1,6 +1,9 @@
 ﻿using DataAccess;
 using DTO;
 using DTO.Article;
+using DTO.DTO_WebUserArticleLike;
+using DTO.DTO_WebUserTopicLike;
+using DTO.DTOTopics;
 using DTO.WebArticle;
 using Microsoft.Extensions.Logging;
 using System.Data;
@@ -36,6 +39,37 @@ namespace ProfessionalLogic.WebArticles
             DataSet ds = DataHandler.QueryDataSet<DTO_KeyWords>(model, ProcName.proc_searchArticle, OpBase.beautyindustry);
             return SelectByPage<DTO_Article>(ds);
         }
+
+        public DataResult updateArticleLikes(DTO_UidAid model)
+        {
+            int? result = DataHandler.OperateObject<DTO_UidAid>(model, ProcName.proc_updateArticleLikes, OpBase.beautyindustry);
+
+            int? result1 = DataHandler.OperateObject<DTO_UidAid>(model, ProcName.proc_insertWebUserArticleLikes, OpBase.beautyindustry);
+
+            return Operation(result + result1);
+        }
+
+        public DataResult getUidAid(DTO_UidAid model)
+        {
+            DataSet ds = DataHandler.QueryDataSet<DTO_UidAid>(model, ProcName.proc_selectUidAid, OpBase.beautyindustry);
+            return Select<DTO_Count>(ds);
+        }
+
+        public DataResult cancelArticleLikes(DTO_UidAid model)
+        {
+            int? result = DataHandler.OperateObject<DTO_UidAid>(model, ProcName.proc_cancelArticleLike, OpBase.beautyindustry);
+
+            int? result1 = DataHandler.OperateObject<DTO_UidAid>(model, ProcName.proc_deleteWebUserArticleLikes, OpBase.beautyindustry);
+
+            return Operation(result + result1);
+        }
+
+        public DataResult getMyArticleLikes(DTO_UidPage model)
+        {
+            DataSet ds = DataHandler.QueryDataSet<DTO_UidPage>(model, ProcName.proc_selectMyArticleLikesByPage, OpBase.beautyindustry);
+            return SelectByPage<DTO_TopicView>(ds);
+        }
+
 
     }
 }

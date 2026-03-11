@@ -7,16 +7,17 @@ namespace WebApiBI.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [AllowAnonymous]
     public class TestController : BaseController
     {
-        //https://localhost:7081/api/test/Getfunc?nameparams=c
+        //http://localhost:5247/api/test/Getfunc?nameparams=c
         //FromQuery ?后的参数
         [HttpGet]
         public IActionResult Getfunc([FromQuery]string nameparams)
         {
             //string nameparams = "a";
            // DataResult ds = moduleBaseService.GetByparams(nameparams);
-            return Ok();
+            return Ok("ddd");
         }
 
         //https://localhost:7081/api/test/Getfun/c

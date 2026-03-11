@@ -57,7 +57,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", builder =>
     {
-        builder.AllowAnyOrigin()
+        builder
+        //.WithOrigins("http://localhost:8888")
+         .AllowAnyOrigin()
                .AllowAnyMethod()
                .AllowAnyHeader();
     });
@@ -84,7 +86,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 // 启用CORS，注意顺序要在认证之前
 app.UseCors("AllowAllOrigins");

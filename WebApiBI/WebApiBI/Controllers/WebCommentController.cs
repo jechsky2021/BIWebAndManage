@@ -1,5 +1,6 @@
 ﻿using DTO;
 using DTO.DTOCommnets;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApiBI.Controllers
@@ -17,6 +18,7 @@ namespace WebApiBI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult GetCommentsByPage([FromBody] DTO_Comment model)
         {
             DataResult ds = webCommentsBaseService.getCommentsByPage(model);

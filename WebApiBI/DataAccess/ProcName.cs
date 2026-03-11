@@ -152,6 +152,13 @@ namespace DataAccess
         public static readonly string proc_selectWebArticleByPage = "proc_selectWebArticleByPage";
         public static readonly string proc_searchArticle = "proc_searchArticle";
 
+        public static readonly string proc_updateArticleLikes = "proc_updateArticleLikes";
+        public static readonly string proc_cancelArticleLike = "proc_cancelArticleLike";
+        public static readonly string proc_selectUidAid = "proc_selectUidAid";
+        public static readonly string proc_insertWebUserArticleLikes = "proc_insertWebUserArticleLikes";
+        public static readonly string proc_deleteWebUserArticleLikes = "proc_deleteWebUserArticleLikes";
+        public static readonly string proc_selectMyArticleLikesByPage = "proc_selectMyArticleLikesByPage";
+
         #endregion
 
         #region articleType

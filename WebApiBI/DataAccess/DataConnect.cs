@@ -9,7 +9,9 @@ namespace DataAccess
 	{
         // MySQL 连接
         MySqlConnection _mySqlConn;
-        readonly string mySqlConnBeautyIndustry = "Server=127.0.0.1;Port=3306;Database=beautyindustry;Uid=root;Pwd=root;Allow User Variables=True;Convert Zero Datetime=True;Charset=utf8mb4;";
+         readonly string mySqlConnBeautyIndustry = "Server=127.0.0.1;Port=3306;Database=beautyindustry;Uid=root;Pwd=root;Allow User Variables=True;Convert Zero Datetime=True;Charset=utf8mb4;";
+
+       // readonly string mySqlConnBeautyIndustry = "Server=127.0.0.1;Port=3306;Database=beautyindustry;Uid=root;Pwd=jingJING.1;Allow User Variables=True;Convert Zero Datetime=True;Charset=utf8mb4;";
 
         // PostgreSQL 连接
         NpgsqlConnection _pgSqlConn;

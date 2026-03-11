@@ -1,6 +1,7 @@
 ﻿using DTO;
 using DTO.DTO_Questions;
 using DTO.DTO_WebUserQuestionLike;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApiBI.Controllers
@@ -18,6 +19,7 @@ namespace WebApiBI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult GetQuestionsByPage([FromBody] DTO_Question model)
         {
             DataResult ds = webQuestionsBaseService.getQuestonsByPage(model);
@@ -25,6 +27,7 @@ namespace WebApiBI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult GetQuestionById([FromBody] DTO_Id model)
         {
             DataResult ds = webQuestionsBaseService.getQuestionById(model);
@@ -32,6 +35,7 @@ namespace WebApiBI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult UpdateQuestionPageViews([FromBody] DTO_Id model)
         {
             DataResult ds = webQuestionsBaseService.updateQuestionPageViews(model);

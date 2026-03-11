@@ -1,5 +1,6 @@
 ﻿using DTO;
 using DTO.DTO_Answers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApiBI.Controllers
@@ -17,6 +18,7 @@ namespace WebApiBI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult GetAnswersByPage([FromBody] DTO_SelectAnswer model)
         {
             DataResult ds = webAnswersBaseService.getAnswersByPage(model);

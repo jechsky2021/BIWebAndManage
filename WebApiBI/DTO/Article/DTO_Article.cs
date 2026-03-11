@@ -16,6 +16,7 @@ namespace DTO.Article
         public int statuss { get; set; } // 0：草稿 1：已发布 2：已下架
         public sbyte isRecommend { get; set; }
         public long pageViews{ get; set; }
+        public long likes { get; set; }
         public DateTime? startTime { get; set; }
         public DateTime? endTime { get; set; }
     }

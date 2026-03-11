@@ -1,6 +1,7 @@
 ﻿using DTO;
 using DTO.DTO_WebUserTopicLike;
 using DTO.DTOTopics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApiBI.Controllers
@@ -18,6 +19,7 @@ namespace WebApiBI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult GetTopicsByPage(DTO_Page model)
         {
             DataResult ds = webTopicsBaseService.getTopicsByPage(model);
@@ -25,6 +27,7 @@ namespace WebApiBI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult GetTopicById(DTO_Id model)
         {
             DataResult ds = webTopicsBaseService.getTopicById(model);
@@ -32,6 +35,7 @@ namespace WebApiBI.Controllers
         }
         
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult UpdateTopicPageViews(DTO_Id model)
         {
             DataResult ds = webTopicsBaseService.updateTopicPageViews(model);
