@@ -35,6 +35,7 @@
             v-model="form.author" 
             placeholder="请输入作者"
             maxlength="50"
+            show-word-limit
           />
         </el-form-item>
         
@@ -72,6 +73,9 @@
               placeholder="请输入文章内容"
               :options="editorOptions"
             />
+            <div class="character-count">
+              {{ contentByteSize }} / 65535 字节
+            </div>
           </div>
           <input type="file" ref="fileInput" style="display: none" accept="image/*" @change="uploadImage" />
         </el-form-item>
@@ -197,6 +201,23 @@ const handleImageZoom = (img, deltaY) => {
   
   // 添加缩放动画
   img.style.transition = 'width 0.2s ease'
+}
+
+// 计算内容的字节大小（UTF-8）
+const contentByteSize = computed(() => {
+  if (!form.content) return 0
+  // 使用 Blob 计算 UTF-8 字节大小
+  return new Blob([form.content]).size
+})
+
+// 验证内容大小
+const validateContentSize = (rule, value, callback) => {
+  const byteSize = contentByteSize.value
+  if (byteSize > 65535) {
+    callback(new Error('文章内容不能超过65535字节'))
+  } else {
+    callback()
+  }
 }
 
 // 监听编辑器内容变化，为新插入的图片添加点击事件
@@ -446,7 +467,8 @@ const rules = {
     { required: true, message: '请选择分类', trigger: 'change' }
   ],
   content: [
-    { required: true, message: '请输入文章内容', trigger: ['blur', 'change'] }
+    { required: true, message: '请输入文章内容', trigger: ['blur', 'change'] },
+    { validator: validateContentSize, trigger: ['blur', 'change'] }
   ]
 }
 
@@ -558,6 +580,13 @@ onMounted(() => {
   setTimeout(() => {
     setupImageZoom()
     setupImageZoomObserver()
+    
+    // 添加Quill编辑器文本变化监听，确保实时更新内容
+    const quill = editorRef.value.getQuill()
+    quill.on('text-change', () => {
+      // 获取编辑器内容并更新form.content
+      form.content = quill.root.innerHTML
+    })
   }, 500)
 })
 
@@ -682,5 +711,14 @@ onMounted(() => {
   padding: 4px 8px;
   font-size: 12px;
   color: #909399;
+}
+
+.character-count {
+  position: absolute;
+  bottom: 4px;
+  right: 8px;
+  font-size: 12px;
+  color: #909399;
+  z-index: 10;
 }
 </style>
