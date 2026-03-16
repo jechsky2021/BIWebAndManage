@@ -83,7 +83,7 @@ const fetchLatestArticles = async () => {
     const data = await getArticlesByPage({
       articleType: -1,
       statuss: 1,
-      isRecommend: 1,
+      isRecommend: -1,
       pageNumber: 1,
       pageSize: 10
     });

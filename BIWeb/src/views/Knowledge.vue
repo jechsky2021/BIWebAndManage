@@ -82,7 +82,7 @@ const fetchKnowledgeData = async (categoryKey: string) => {
     const response = await getArticlesByPage({
       articleType: categoryKey || -1,
       statuss: 1,
-      isRecommend: 1,
+      isRecommend: -1,
       parentId:9,
       pageNumber: 1,
       pageSize: 20
